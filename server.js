@@ -30,6 +30,5 @@ app.post('/api/generate', async (req, res) => {
 
 app.listen(3001, () => {
     console.log('🔥 Server rodando em http://localhost:3001')
+    console.log('🔑 API Key:', process.env.ANTHROPIC_API_KEY ? '✓ configurada' : '✗ AUSENTE — defina ANTHROPIC_API_KEY no .env')
 })
-
-console.log('API KEY:', process.env.ANTHROPIC_API_KEY)

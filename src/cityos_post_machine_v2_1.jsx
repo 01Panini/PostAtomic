@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 const DS = {
     p: '#0057B7',
     dark: { bg: '#040C1A', surf: '#080F1C', sm: '#0E1627', bord: '#162035', t1: '#E8EDF5', t2: '#7A849A', t3: '#3E4A5E' },
-    light: { bg: '#F4F6F9', surf: '#FFFFFF', sm: '#F0F4FA', bord: '#E2E6EC', t1: '#14171C', t2: '#5A6070', t3: '#9CA3AF' },
     mod: {
         cityos: { c: '#4D9AFF', s: 'rgba(77,154,255,0.13)', n: 'CityOS' },
         flowos: { c: '#FBBF24', s: 'rgba(251,191,36,0.13)', n: 'FlowOS' },
@@ -94,8 +93,8 @@ function rgb(h) {
 
 function Grid({ w, h, op = .055 }) {
     const L = [], s = 108;
-    for (let x = s; x < w; x += s)L.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={h} stroke={`rgba(77,154,255,${op})`} strokeWidth={1} />);
-    for (let y = s; y < h; y += s)L.push(<line key={`h${y}`} x1={0} y1={y} x2={w} y2={y} stroke={`rgba(77,154,255,${op})`} strokeWidth={1} />);
+    for (let x = s; x < w; x += s) L.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={h} stroke={`rgba(77,154,255,${op})`} strokeWidth={1} />);
+    for (let y = s; y < h; y += s) L.push(<line key={`h${y}`} x1={0} y1={y} x2={w} y2={y} stroke={`rgba(77,154,255,${op})`} strokeWidth={1} />);
     return <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>{L}</svg>;
 }
 function Orb({ x, y, r, color, o = .2 }) {
@@ -105,21 +104,34 @@ function Orb({ x, y, r, color, o = .2 }) {
         background: `radial-gradient(circle,rgba(${rgb(color)},${o}) 0%,transparent 70%)`
     }} />;
 }
-function Chip({ text, mod = 'none', fs = 20 }) {
+
+/* Fixed brand badge — always "GESTÃO MUNICIPAL" */
+function GovBadge({ mod = 'none', fs = 20 }) {
     const m = mo(mod);
     return (
         <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: `${Math.round(fs * .38)}px ${Math.round(fs * .88)}px`, borderRadius: 9999,
             background: m.s, border: `1px solid ${m.c}28`,
-            fontSize: fs, fontWeight: 700, letterSpacing: '.07em', color: m.c, textTransform: 'uppercase'
+            fontSize: fs, fontWeight: 800, letterSpacing: '.08em', color: m.c, textTransform: 'uppercase'
         }}>
             <div style={{
                 width: Math.round(fs * .38), height: Math.round(fs * .38), borderRadius: '50%',
                 background: m.c, boxShadow: `0 0 9px ${m.c}90`
             }} />
-            {text}
+            GESTÃO MUNICIPAL
         </div>
+    );
+}
+
+/* CityOS brand signature */
+function Sig({ dark = true, fs = 19 }) {
+    return (
+        <span style={{
+            fontSize: fs, fontWeight: 800, letterSpacing: '.06em',
+            color: dark ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.18)',
+            textTransform: 'uppercase'
+        }}>CityOS</span>
     );
 }
 
@@ -137,10 +149,7 @@ function TplHD({ d, w, h }) {
             <Orb x={w * .5} y={0} r={w * .78} color={m.c} o={.09} />
             {[.48, .62].map((r, i) => <div key={i} style={{ position: 'absolute', top: h * .04, right: -w * r * .32, width: w * r, height: w * r, borderRadius: '50%', border: `1px solid rgba(255,255,255,${.04 - i * .015})`, pointerEvents: 'none' }} />)}
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip text={d.chip || 'CityOS'} mod={d.accentModule} fs={20} />
-                    <span style={{ fontSize: 18, color: 'rgba(255,255,255,.2)', fontWeight: 600, letterSpacing: '.04em' }}>cityos.com.br</span>
-                </div>
+                <GovBadge mod={d.accentModule} fs={20} />
                 <div>
                     {d.stat && <div style={{ fontSize: stFs, fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .017), background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.4) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
                     {d.statLabel && <div style={{ fontSize: Math.round(sfs * .82), color: 'rgba(255,255,255,.42)', fontWeight: 500, marginBottom: Math.round(h * .022), lineHeight: 1.4 }}>{d.statLabel}</div>}
@@ -150,7 +159,7 @@ function TplHD({ d, w, h }) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.07)', borderRadius: 100, padding: `${Math.round(p * .24)}px ${Math.round(p * .5)}px` }}>
                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: m.c, boxShadow: `0 0 10px ${m.c}` }} />
-                        <span style={{ fontSize: 19, fontWeight: 700, color: 'rgba(255,255,255,.55)' }}>{m.n} · Platform</span>
+                        <Sig dark fs={19} />
                     </div>
                     {d.cta && <div style={{ background: '#0057B7', color: '#fff', whiteSpace: 'nowrap', padding: `${Math.round(p * .24)}px ${Math.round(p * .52)}px`, borderRadius: 100, fontSize: 22, fontWeight: 800, boxShadow: '0 4px 22px rgba(0,87,183,.48)' }}>{d.cta} →</div>}
                 </div>
@@ -159,25 +168,26 @@ function TplHD({ d, w, h }) {
     );
 }
 
-/* ── TEMPLATE: HERO LIGHT ── */
+/* ── TEMPLATE: HERO MID (dark variant for carousel variety) ── */
 function TplHL({ d, w, h }) {
     const m = mo(d.accentModule), p = Math.round(w * .059);
     const hfs = h > 1400 ? Math.round(w * .094) : Math.round(w * .082);
     const sfs = Math.round(w * .037);
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#FFFFFF', borderLeft: `8px solid ${m.c}` }}>
-            <div style={{ position: 'absolute', top: -w * .28, right: -w * .28, width: w * .64, height: w * .64, borderRadius: '50%', background: `radial-gradient(circle,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: -w * .12, left: p, width: w * .38, height: w * .38, borderRadius: '50%', background: `radial-gradient(circle,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 8, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <Chip text={d.chip || 'CityOS'} mod={d.accentModule} fs={20} />
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#071428', borderLeft: `6px solid ${m.c}` }}>
+            <Grid w={w} h={h} op={.035} />
+            <div style={{ position: 'absolute', top: -w * .28, right: -w * .28, width: w * .64, height: w * .64, borderRadius: '50%', background: `radial-gradient(circle,rgba(${rgb(m.c)},.12) 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -w * .12, left: p, width: w * .38, height: w * .38, borderRadius: '50%', background: `radial-gradient(circle,rgba(${rgb(m.c)},.07) 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 6, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <GovBadge mod={d.accentModule} fs={20} />
                 <div>
                     {d.stat && <div style={{ fontSize: Math.round(w * .15), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', color: m.c, marginBottom: Math.round(h * .012) }}>{d.stat}</div>}
-                    {d.statLabel && <div style={{ fontSize: Math.round(sfs * .8), color: DS.light.t2, marginBottom: Math.round(h * .02), fontWeight: 500 }}>{d.statLabel}</div>}
-                    <div style={{ fontSize: hfs, fontWeight: 900, color: DS.light.t1, lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .02) }}>{d.headline}</div>
-                    {d.subheadline && <div style={{ fontSize: sfs, color: DS.light.t2, lineHeight: 1.45, fontWeight: 500 }}>{d.subheadline}</div>}
+                    {d.statLabel && <div style={{ fontSize: Math.round(sfs * .8), color: 'rgba(255,255,255,.4)', marginBottom: Math.round(h * .02), fontWeight: 500 }}>{d.statLabel}</div>}
+                    <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .02) }}>{d.headline}</div>
+                    {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.46)', lineHeight: 1.45, fontWeight: 500 }}>{d.subheadline}</div>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 18, color: DS.light.t3, fontWeight: 600 }}>cityos.com.br</span>
+                    <Sig fs={19} />
                     {d.cta && <div style={{ background: m.c, color: '#fff', padding: `${Math.round(p * .24)}px ${Math.round(p * .52)}px`, borderRadius: 100, fontSize: 22, fontWeight: 800 }}>{d.cta} →</div>}
                 </div>
             </div>
@@ -196,7 +206,7 @@ function TplFD({ d, w, h }) {
             <div style={{ position: 'absolute', top: 0, left: p, right: p, height: 3, background: `linear-gradient(90deg,${m.c} 0%,transparent 85%)` }} />
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, paddingTop: p + 14, display: 'flex', flexDirection: 'column', gap: Math.round(h * .03) }}>
                 <div>
-                    <Chip text={d.chip || m.n} mod={d.accentModule} fs={20} />
+                    <GovBadge mod={d.accentModule} fs={20} />
                     <div style={{ fontSize: hfs, fontWeight: 900, color: '#FFF', lineHeight: 1.15, letterSpacing: '-.025em', marginTop: Math.round(h * .024) }}>{d.headline}</div>
                     {d.subheadline && <div style={{ fontSize: Math.round(w * .031), color: 'rgba(255,255,255,.42)', marginTop: Math.round(h * .012), lineHeight: 1.4, fontWeight: 500 }}>{d.subheadline}</div>}
                 </div>
@@ -211,7 +221,7 @@ function TplFD({ d, w, h }) {
                     </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: Math.round(h * .014), borderTop: '1px solid rgba(255,255,255,.07)' }}>
-                    <span style={{ fontSize: 18, color: 'rgba(255,255,255,.22)' }}>cityos.com.br</span>
+                    <Sig fs={19} />
                     {d.cta && <span style={{ fontSize: 22, color: m.c, fontWeight: 800 }}>{d.cta} →</span>}
                 </div>
             </div>
@@ -219,31 +229,32 @@ function TplFD({ d, w, h }) {
     );
 }
 
-/* ── TEMPLATE: FEATURE LIGHT ── */
+/* ── TEMPLATE: FEATURE MID (dark left-border variant) ── */
 function TplFL({ d, w, h }) {
     const m = mo(d.accentModule), p = Math.round(w * .059);
     const hfs = Math.round(w * .062), ifs = Math.round(w * .034);
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#F4F6F9', borderLeft: `8px solid ${m.c}` }}>
-            <div style={{ position: 'absolute', bottom: 0, right: 0, width: w * .48, height: w * .48, background: `radial-gradient(circle at bottom right,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 8, display: 'flex', flexDirection: 'column', gap: Math.round(h * .026) }}>
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#061224', borderLeft: `6px solid ${m.c}` }}>
+            <Grid w={w} h={h} op={.035} />
+            <div style={{ position: 'absolute', bottom: 0, right: 0, width: w * .48, height: w * .48, background: `radial-gradient(circle at bottom right,rgba(${rgb(m.c)},.1) 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 6, display: 'flex', flexDirection: 'column', gap: Math.round(h * .026) }}>
                 <div>
-                    <Chip text={d.chip || m.n} mod={d.accentModule} fs={20} />
-                    <div style={{ fontSize: hfs, fontWeight: 900, color: DS.light.t1, lineHeight: 1.15, letterSpacing: '-.025em', marginTop: Math.round(h * .024) }}>{d.headline}</div>
-                    {d.subheadline && <div style={{ fontSize: Math.round(w * .031), color: DS.light.t2, marginTop: Math.round(h * .012), lineHeight: 1.4, fontWeight: 500 }}>{d.subheadline}</div>}
+                    <GovBadge mod={d.accentModule} fs={20} />
+                    <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.15, letterSpacing: '-.025em', marginTop: Math.round(h * .024) }}>{d.headline}</div>
+                    {d.subheadline && <div style={{ fontSize: Math.round(w * .031), color: 'rgba(255,255,255,.44)', marginTop: Math.round(h * .012), lineHeight: 1.4, fontWeight: 500 }}>{d.subheadline}</div>}
                 </div>
                 {d.items?.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(h * .014), flex: 1 }}>
                         {d.items.map((item, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .019)}px ${Math.round(w * .03)}px`, background: 'rgba(255,255,255,.9)', border: `1px solid ${DS.light.bord}`, borderRadius: 14, borderLeft: `3px solid ${m.c}`, boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .019)}px ${Math.round(w * .03)}px`, background: 'rgba(255,255,255,.04)', border: `1px solid rgba(255,255,255,.07)`, borderRadius: 14, borderLeft: `3px solid ${m.c}` }}>
                                 <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: m.s, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: m.c }}>{i + 1}</div>
-                                <span style={{ fontSize: ifs, color: DS.light.t1, fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
+                                <span style={{ fontSize: ifs, color: 'rgba(255,255,255,.72)', fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
                             </div>
                         ))}
                     </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: Math.round(h * .012), borderTop: `1px solid ${DS.light.bord}` }}>
-                    <span style={{ fontSize: 18, color: DS.light.t3 }}>cityos.com.br</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: Math.round(h * .012), borderTop: '1px solid rgba(255,255,255,.07)' }}>
+                    <Sig fs={19} />
                     {d.cta && <div style={{ background: m.c, color: '#fff', padding: '12px 24px', borderRadius: 100, fontSize: 20, fontWeight: 800 }}>{d.cta} →</div>}
                 </div>
             </div>
@@ -262,18 +273,19 @@ function TplCTA({ d, w, h }) {
             <Orb x={w * .5} y={h} r={w * .85} color='#0057B7' o={.18} />
             {[.38, .52, .67].map((r, i) => <div key={i} style={{ position: 'absolute', bottom: -w * r * .48, left: '50%', transform: 'translateX(-50%)', width: w * r, height: w * r, borderRadius: '50%', border: `1px solid rgba(255,255,255,${.06 - i * .018})`, pointerEvents: 'none' }} />)}
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', textAlign: 'center' }}>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Chip text={d.chip || 'CityOS'} mod={d.accentModule} fs={20} />
-                    <span style={{ fontSize: 18, color: 'rgba(255,255,255,.2)' }}>@cityos_br</span>
+                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start' }}>
+                    <GovBadge mod={d.accentModule} fs={20} />
                 </div>
                 <div>
                     {d.stat && <div style={{ fontSize: Math.round(w * .138), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .018), background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.38) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
                     <div style={{ fontSize: hfs, fontWeight: 900, color: '#FFF', lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .024) }}>{d.headline}</div>
                     {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.46)', lineHeight: 1.5, fontWeight: 500, maxWidth: w * .8, margin: '0 auto' }}>{d.subheadline}</div>}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, width: '100%' }}>
                     {d.cta && <div style={{ background: 'linear-gradient(135deg,#0057B7 0%,#003A82 100%)', color: '#fff', padding: `${Math.round(p * .36)}px ${Math.round(p * .82)}px`, borderRadius: 100, fontSize: 26, fontWeight: 800, boxShadow: '0 0 44px rgba(0,87,183,.58)', letterSpacing: '-.01em' }}>{d.cta} →</div>}
-                    <span style={{ fontSize: 18, color: 'rgba(255,255,255,.28)', fontWeight: 600 }}>cityos.com.br</span>
+                    <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start' }}>
+                        <Sig fs={19} />
+                    </div>
                 </div>
             </div>
         </div>
@@ -286,55 +298,52 @@ function TplStory({ d, w, h }) {
     const pc = PHASE_COLORS[d.phase] || m.c;
     const isCTAPhase = ['Ação', 'CTA', 'Solução'].includes(d.phase);
     const p = Math.round(w * .074), hfs = Math.round(w * .11), sfs = Math.round(w * .05);
-    const bg = isDark
-        ? `radial-gradient(ellipse 110% 65% at 50% ${isCTAPhase ? '105%' : '0%'},rgba(${rgb(pc)},.22) 0%,#040C1A 58%)`
-        : `radial-gradient(ellipse 110% 55% at 50% 0%,rgba(${rgb(pc)},.14) 0%,#F4F6F9 62%)`;
-    const tc1 = isDark ? '#E8EDF5' : DS.light.t1, tc2 = isDark ? 'rgba(255,255,255,.48)' : DS.light.t2;
+    const bg = `radial-gradient(ellipse 110% 65% at 50% ${isCTAPhase ? '105%' : '0%'},rgba(${rgb(pc)},.22) 0%,#040C1A 58%)`;
     return (
         <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: bg }}>
-            {isDark && <Grid w={w} h={h} op={.04} />}
+            <Grid w={w} h={h} op={.04} />
             <Orb x={w * .5} y={isCTAPhase ? h : 0} r={w * .9} color={pc} o={.1} />
             <div style={{ position: 'absolute', top: p, left: p, right: p, zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, padding: '11px 24px', borderRadius: 100, background: isDark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)', border: `1px solid ${pc}30`, fontSize: 20, fontWeight: 800, color: pc, letterSpacing: '.07em', textTransform: 'uppercase' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, padding: '11px 24px', borderRadius: 100, background: 'rgba(255,255,255,.06)', border: `1px solid ${pc}30`, fontSize: 20, fontWeight: 800, color: pc, letterSpacing: '.07em', textTransform: 'uppercase' }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: pc, boxShadow: `0 0 9px ${pc}` }} />
-                    {d.phase || 'CityOS'}
+                    {d.phase || 'GESTÃO MUNICIPAL'}
                 </div>
-                <span style={{ fontSize: 18, color: isDark ? 'rgba(255,255,255,.18)' : DS.light.t3 }}>@cityos_br</span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 18px', borderRadius: 100, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', fontSize: 18, fontWeight: 800, color: 'rgba(255,255,255,.35)', letterSpacing: '.06em' }}>
+                    CityOS
+                </div>
             </div>
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p * 2.8, paddingBottom: p * 2.2, paddingLeft: p, paddingRight: p, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: Math.round(h * .027) }}>
-                {d.chip && <Chip text={d.chip} mod={d.accentModule} fs={22} />}
-                {d.stat && <div style={{ fontSize: Math.round(w * .19), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', background: isDark ? 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.38) 100%)' : `linear-gradient(180deg,${pc} 0%,${pc}70 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
-                {d.statLabel && <div style={{ fontSize: Math.round(sfs * .75), color: tc2, fontWeight: 500, lineHeight: 1.35 }}>{d.statLabel}</div>}
-                <div style={{ fontSize: hfs, fontWeight: 900, color: tc1, lineHeight: 1.1, letterSpacing: '-.03em' }}>{d.headline}</div>
-                {d.subheadline && <div style={{ fontSize: sfs, color: tc2, lineHeight: 1.45, fontWeight: 500, maxWidth: w * .92 }}>{d.subheadline}</div>}
+                {d.stat && <div style={{ fontSize: Math.round(w * .19), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.38) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
+                {d.statLabel && <div style={{ fontSize: Math.round(sfs * .75), color: 'rgba(255,255,255,.48)', fontWeight: 500, lineHeight: 1.35 }}>{d.statLabel}</div>}
+                <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.1, letterSpacing: '-.03em' }}>{d.headline}</div>
+                {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.5)', lineHeight: 1.45, fontWeight: 500, maxWidth: w * .92 }}>{d.subheadline}</div>}
                 {d.items?.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(h * .011) }}>
                         {d.items.map((item, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .015)}px ${Math.round(w * .037)}px`, background: isDark ? 'rgba(255,255,255,.05)' : 'rgba(255,255,255,.85)', borderRadius: 14, borderLeft: `3px solid ${pc}` }}>
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .015)}px ${Math.round(w * .037)}px`, background: 'rgba(255,255,255,.05)', borderRadius: 14, borderLeft: `3px solid ${pc}` }}>
                                 <div style={{ width: 32, height: 32, borderRadius: 10, flexShrink: 0, background: `${pc}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: pc }}>{i + 1}</div>
-                                <span style={{ fontSize: Math.round(w * .039), color: tc1, fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
+                                <span style={{ fontSize: Math.round(w * .039), color: 'rgba(255,255,255,.78)', fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
                             </div>
                         ))}
                     </div>
                 )}
                 {d.cta && <div style={{ display: 'inline-flex', alignSelf: 'flex-start', background: 'linear-gradient(135deg,#0057B7 0%,#003A82 100%)', color: '#fff', padding: `${Math.round(p * .3)}px ${Math.round(p * .78)}px`, borderRadius: 100, fontSize: 28, fontWeight: 800, boxShadow: '0 4px 28px rgba(0,87,183,.5)', marginTop: Math.round(h * .01) }}>{d.cta} →</div>}
             </div>
-            <div style={{ position: 'absolute', bottom: p, left: '50%', transform: 'translateX(-50%)', zIndex: 10, fontSize: 16, color: isDark ? 'rgba(255,255,255,.22)' : DS.light.t3, fontWeight: 600 }}>cityos.com.br</div>
         </div>
     );
 }
 
 function pickTpl(fmt, idx, total, sl) {
     if (fmt === 'story') return 'story';
-    if (fmt === 'post') return sl.theme === 'light' ? 'hero-light' : 'hero-dark';
+    if (fmt === 'post') return sl.theme === 'light' ? 'hero-mid' : 'hero-dark';
     if (idx === 0) return 'hero-dark';
     if (idx === total - 1) return 'cta-dark';
-    return idx % 2 === 1 ? 'feature-dark' : 'feature-light';
+    return idx % 2 === 1 ? 'feature-dark' : 'feature-mid';
 }
 function Slide({ slide, w, h, fmt, idx, total }) {
     const t = pickTpl(fmt, idx, total, slide);
     const p = { d: slide, w, h };
-    const map = { 'hero-dark': TplHD, 'hero-light': TplHL, 'feature-dark': TplFD, 'feature-light': TplFL, 'cta-dark': TplCTA, 'story': TplStory };
+    const map = { 'hero-dark': TplHD, 'hero-mid': TplHL, 'feature-dark': TplFD, 'feature-mid': TplFL, 'cta-dark': TplCTA, 'story': TplStory };
     const T = map[t] || TplHD;
     return <T {...p} />;
 }
@@ -346,48 +355,50 @@ async function callAPI(fmt, fw, topic) {
         instr = `Gere 1 slide (post único). Use stat impactante se aplicável.`;
     } else if (isC) {
         instr = `Gere exatamente 5 slides para carrossel:
-Slide 1 (theme:dark): cover/hook, headline ousada sobre o problema
-Slide 2 (theme:dark): dores reais de gestores, inclua 3 items com problemas
-Slide 3 (theme:light): como o CityOS resolve, 3 items claros de solução
-Slide 4 (theme:dark): resultados e benefícios, 3 items com impacto
-Slide 5 (theme:dark): CTA forte com urgência`;
+Slide 1 (theme:dark): cover/hook — headline que PARA o scroll com pergunta ou dado chocante
+Slide 2 (theme:dark): dores reais de gestores, 3 items com problemas específicos e mensuráveis
+Slide 3 (theme:dark): como o CityOS resolve, 3 items concretos de solução com resultado
+Slide 4 (theme:dark): resultados e benefícios reais, 3 items com impacto mensurável
+Slide 5 (theme:dark): CTA forte com urgência — o que o gestor perde a cada dia sem o CityOS`;
     } else {
         const phases = fw === 'AIDA' ? ['Atenção', 'Interesse', 'Desejo', 'Ação'] : ['Problema', 'Agitação', 'Impacto', 'Solução', 'CTA'];
         instr = `Gere ${phases.length} slides de story usando framework ${fw}.
 Fases em ordem: ${phases.join(', ')}.
-Inclua "phase" com o nome exato. Textos curtos e impactantes. Máx 2 items por slide.
-Themes: Atenção/Problema = dark, Interesse/Agitação = pode variar, Desejo/Impacto = dark, Solução/Ação/CTA = dark.`;
+Inclua "phase" com o nome exato. Textos CURTOS e de alto impacto. Máx 2 items por slide.
+Todos os slides devem ter theme:dark.`;
     }
     const res = await fetch('http://localhost:3001/api/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514', max_tokens: 2000,
+            model: 'claude-sonnet-4-20250514', max_tokens: 2500,
             messages: [{
-                role: 'user', content: `Você é o estrategista de conteúdo do CityOS — plataforma govtech B2B SaaS para prefeituras brasileiras.
+                role: 'user', content: `Você é o estrategista sênior de conteúdo do CityOS — plataforma govtech B2B SaaS para prefeituras brasileiras.
 
 PRODUTO: CityOS = sistema operacional para cidades.
-• CityOS: ouvidoria digital, canal unificado cidadão-prefeitura, SLA automático
-• FlowOS: gestão operacional, tarefas por secretaria, equipes, dashboards
-• CoreOS: inteligência artificial, analytics preditivos, heatmaps, insights
+• CityOS: ouvidoria digital, canal unificado cidadão-prefeitura, SLA automático, controle de demandas
+• FlowOS: gestão operacional, tarefas por secretaria, equipes, checklists, dashboards em tempo real
+• CoreOS: inteligência artificial, analytics preditivos, heatmaps de demandas, alertas automáticos
 
-PÚBLICO: prefeitos, secretários municipais, diretores. META: gerar desejo de agendar demo.
+PÚBLICO-ALVO: prefeitos, secretários municipais, diretores de TI e operação de prefeituras.
+META ÚNICA: gerar desejo imediato de agendar uma demo. Criar a sensação de que operar sem o CityOS é negligência.
 FOCO DESTE CONTEÚDO: ${topic}
 
 ${instr}
 
-REGRAS DE CONTEÚDO:
-- chip: máx 3 palavras em maiúsculas
-- headline: máx 8 palavras, direto como um executivo
-- subheadline: máx 15 palavras (opcional)  
-- stat: número impactante "73%", "7 dias", "3x" (opcional, poderoso quando usado)
-- statLabel: contexto do stat max 10 palavras (opcional)
-- items: array de strings, máx 4 itens, cada um max 10 palavras
-- cta: máx 5 palavras
-- accentModule: "cityos"|"flowos"|"coreos"|"none"
-- caption: 80-120 palavras em português, tom executivo, focado em resultado
+REGRAS DE COPY DE ALTO IMPACTO (CRÍTICO — siga à risca):
+- headline: SEMPRE comece com hook que cria desconforto, reflexão ou urgência no gestor
+- USE: perguntas diretas ("Sua prefeitura resolve problemas ou só reage a crises?"), dados chocantes ("73% das ordens de serviço somem sem resposta"), afirmações provocativas ("Gestores reagem. Líderes previnem.")
+- NUNCA use: "Transforme sua gestão", "Modernize sua prefeitura", "Melhore seus resultados" — são genéricas e invisíveis
+- NUNCA repita a headline na subheadline
+- subheadline: amplifica o hook com contexto real, não resume o headline
+- stat: número que choca — ex: "68%", "R$ 2,3M", "47 dias", "3x mais rápido"
+- items: benefícios CONCRETOS e MENSURÁVEIS — não abstratos, não óbvios
+- cta: ação direta — "Agende uma demo", "Ver na prática", "Quero testar agora"
+- caption: 80-120 palavras em português, tom direto de executivo, começa com o mesmo hook do headline, termina com CTA
+- chip: campo usado internamente — use "GESTÃO MUNICIPAL" como padrão
 
 Responda APENAS JSON válido sem markdown:
-{"slides":[{"theme":"dark","chip":"","stat":"","statLabel":"","headline":"","subheadline":"","items":[],"cta":"","accentModule":"none","phase":""}],"caption":"","hashtags":""}`}]
+{"slides":[{"theme":"dark","chip":"GESTÃO MUNICIPAL","stat":"","statLabel":"","headline":"","subheadline":"","items":[],"cta":"","accentModule":"none","phase":""}],"caption":"","hashtags":""}`}]
         })
     });
     const data = await res.json();
@@ -395,16 +406,27 @@ Responda APENAS JSON válido sem markdown:
     return JSON.parse(txt.replace(/```json\n?|\n?```/g, '').trim());
 }
 
+/* ── EXPORT (bug fix: explicit background + scale 2 + no null backgroundColor) ── */
 async function doExport(el, name) {
-    if (!window.html2canvas) { alert('Exportador ainda carregando (5 seg). Tente novamente.'); return; }
+    if (!window.html2canvas) { alert('Exportador ainda carregando. Aguarde 5 segundos e tente novamente.'); return; }
     try {
         await document.fonts.ready;
-        const cv = await window.html2canvas(el, { scale: 1, useCORS: true, allowTaint: false, logging: false, backgroundColor: null });
+        const cv = await window.html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            logging: false,
+            backgroundColor: '#040C1A',
+            width: el.offsetWidth,
+            height: el.offsetHeight,
+            scrollX: 0,
+            scrollY: 0
+        });
         cv.toBlob(blob => {
             const u = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = u; a.download = name; a.click();
-            setTimeout(() => URL.revokeObjectURL(u), 3000);
+            setTimeout(() => URL.revokeObjectURL(u), 5000);
         }, 'image/png');
     } catch (e) { console.error(e); alert('Erro ao exportar. Tente novamente.'); }
 }
@@ -445,7 +467,7 @@ export default function App() {
     };
 
     const dl = i => { const el = document.getElementById(`exp${i}`); if (el) doExport(el, `cityos-${fmt}-${i + 1}.png`); };
-    const dlAll = async () => { for (let i = 0; i < slides.length; i++) { dl(i); await new Promise(r => setTimeout(r, 650)); } };
+    const dlAll = async () => { for (let i = 0; i < slides.length; i++) { dl(i); await new Promise(r => setTimeout(r, 800)); } };
     const copy = () => navigator.clipboard.writeText(`${cap}\n\n${ht}`).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2200); });
 
     const pw = Math.round(dims.w * dims.sc), ph = Math.round(dims.h * dims.sc);
@@ -603,7 +625,7 @@ export default function App() {
                                                     {sl.phase ? `${sl.phase} — ` : `Slide ${i + 1} — `}{(sl.headline || '').substring(0, 26)}{(sl.headline || '').length > 26 ? '…' : ''}
                                                 </div>
                                                 <div style={{ fontSize: 10, color: '#3E4A5E', marginTop: 1 }}>
-                                                    {sl.theme === 'dark' ? '● Dark' : '○ Light'} · {(DS.mod[sl.accentModule] || DS.mod.none).n}
+                                                    ● Dark · {(DS.mod[sl.accentModule] || DS.mod.none).n}
                                                 </div>
                                             </div>
                                             <button className="dbtn" style={{ width: 'auto', padding: '5px 10px', fontSize: 11, flexShrink: 0 }}
@@ -629,10 +651,16 @@ export default function App() {
                 )}
             </div>
 
-            {/* HIDDEN EXPORT CONTAINER */}
-            <div style={{ position: 'fixed', left: '-9999px', top: 0, zIndex: -999, pointerEvents: 'none' }}>
+            {/* HIDDEN EXPORT CONTAINER — explicit background prevents white artifacts */}
+            <div style={{ position: 'absolute', left: '-9999px', top: 0, pointerEvents: 'none', visibility: 'hidden' }}>
                 {slides.map((sl, i) => (
-                    <div key={i} id={`exp${i}`} style={{ width: dims.w, height: dims.h, overflow: 'hidden', fontFamily: "'Satoshi',sans-serif" }}>
+                    <div key={i} id={`exp${i}`} style={{
+                        width: dims.w, height: dims.h,
+                        overflow: 'hidden',
+                        fontFamily: "'Satoshi',sans-serif",
+                        background: '#040C1A',
+                        position: 'relative'
+                    }}>
                         <Slide slide={sl} w={dims.w} h={dims.h} fmt={fmt} idx={i} total={slides.length} />
                     </div>
                 ))}
