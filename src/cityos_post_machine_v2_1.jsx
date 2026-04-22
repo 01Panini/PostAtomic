@@ -367,10 +367,12 @@ Fases em ordem: ${phases.join(', ')}.
 Inclua "phase" com o nome exato. Textos CURTOS e de alto impacto. Máx 2 items por slide.
 Todos os slides devem ter theme:dark.`;
     }
-    const res = await fetch('http://localhost:3001/api/generate', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514', max_tokens: 2500,
+    let res;
+    try {
+        res = await fetch('http://localhost:3001/api/generate', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514', max_tokens: 2500,
             messages: [{
                 role: 'user', content: `Você é o estrategista sênior de conteúdo do CityOS — plataforma govtech B2B SaaS para prefeituras brasileiras.
 
@@ -399,9 +401,17 @@ REGRAS DE COPY DE ALTO IMPACTO (CRÍTICO — siga à risca):
 
 Responda APENAS JSON válido sem markdown:
 {"slides":[{"theme":"dark","chip":"GESTÃO MUNICIPAL","stat":"","statLabel":"","headline":"","subheadline":"","items":[],"cta":"","accentModule":"none","phase":""}],"caption":"","hashtags":""}`}]
-        })
-    });
+            })
+        });
+    } catch {
+        throw new Error('Servidor não encontrado. Verifique se "node server.js" está rodando na porta 3001.');
+    }
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(`Erro do servidor (${res.status}): ${err.error || res.statusText}`);
+    }
     const data = await res.json();
+    if (data.error) throw new Error(`Erro da API Anthropic: ${data.error.message || JSON.stringify(data.error)}`);
     const txt = data.content?.find(c => c.type === 'text')?.text || '{}';
     return JSON.parse(txt.replace(/```json\n?|\n?```/g, '').trim());
 }
