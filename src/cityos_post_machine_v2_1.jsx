@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 const DS = {
     p: '#0057B7',
     dark: { bg: '#040C1A', surf: '#080F1C', sm: '#0E1627', bord: '#162035', t1: '#E8EDF5', t2: '#7A849A', t3: '#3E4A5E' },
+    light: { bg: '#F4F6F9', surf: '#FFFFFF', sm: '#F0F4FA', bord: '#E2E6EC', t1: '#14171C', t2: '#5A6070', t3: '#9CA3AF' },
     mod: {
         cityos: { c: '#4D9AFF', s: 'rgba(77,154,255,0.13)', n: 'CityOS' },
         flowos: { c: '#FBBF24', s: 'rgba(251,191,36,0.13)', n: 'FlowOS' },
@@ -124,12 +125,12 @@ function GovBadge({ mod = 'none', fs = 20 }) {
     );
 }
 
-/* CityOS brand signature */
+/* CityOS brand signature — dark=true for dark backgrounds, dark=false for light */
 function Sig({ dark = true, fs = 19 }) {
     return (
         <span style={{
             fontSize: fs, fontWeight: 800, letterSpacing: '.06em',
-            color: dark ? 'rgba(255,255,255,.28)' : 'rgba(255,255,255,.18)',
+            color: dark ? 'rgba(255,255,255,.28)' : 'rgba(0,40,100,.32)',
             textTransform: 'uppercase'
         }}>CityOS</span>
     );
@@ -168,26 +169,25 @@ function TplHD({ d, w, h }) {
     );
 }
 
-/* ── TEMPLATE: HERO MID (dark variant for carousel variety) ── */
+/* ── TEMPLATE: HERO LIGHT ── */
 function TplHL({ d, w, h }) {
     const m = mo(d.accentModule), p = Math.round(w * .059);
     const hfs = h > 1400 ? Math.round(w * .094) : Math.round(w * .082);
     const sfs = Math.round(w * .037);
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#071428', borderLeft: `6px solid ${m.c}` }}>
-            <Grid w={w} h={h} op={.035} />
-            <div style={{ position: 'absolute', top: -w * .28, right: -w * .28, width: w * .64, height: w * .64, borderRadius: '50%', background: `radial-gradient(circle,rgba(${rgb(m.c)},.12) 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: -w * .12, left: p, width: w * .38, height: w * .38, borderRadius: '50%', background: `radial-gradient(circle,rgba(${rgb(m.c)},.07) 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 6, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#FFFFFF', borderLeft: `8px solid ${m.c}` }}>
+            <div style={{ position: 'absolute', top: -w * .28, right: -w * .28, width: w * .64, height: w * .64, borderRadius: '50%', background: `radial-gradient(circle,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: -w * .12, left: p, width: w * .38, height: w * .38, borderRadius: '50%', background: `radial-gradient(circle,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 8, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <GovBadge mod={d.accentModule} fs={20} />
                 <div>
                     {d.stat && <div style={{ fontSize: Math.round(w * .15), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', color: m.c, marginBottom: Math.round(h * .012) }}>{d.stat}</div>}
-                    {d.statLabel && <div style={{ fontSize: Math.round(sfs * .8), color: 'rgba(255,255,255,.4)', marginBottom: Math.round(h * .02), fontWeight: 500 }}>{d.statLabel}</div>}
-                    <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .02) }}>{d.headline}</div>
-                    {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.46)', lineHeight: 1.45, fontWeight: 500 }}>{d.subheadline}</div>}
+                    {d.statLabel && <div style={{ fontSize: Math.round(sfs * .8), color: DS.light.t2, marginBottom: Math.round(h * .02), fontWeight: 500 }}>{d.statLabel}</div>}
+                    <div style={{ fontSize: hfs, fontWeight: 900, color: DS.light.t1, lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .02) }}>{d.headline}</div>
+                    {d.subheadline && <div style={{ fontSize: sfs, color: DS.light.t2, lineHeight: 1.45, fontWeight: 500 }}>{d.subheadline}</div>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Sig fs={19} />
+                    <Sig dark={false} fs={19} />
                     {d.cta && <div style={{ background: m.c, color: '#fff', padding: `${Math.round(p * .24)}px ${Math.round(p * .52)}px`, borderRadius: 100, fontSize: 22, fontWeight: 800 }}>{d.cta} →</div>}
                 </div>
             </div>
@@ -229,32 +229,31 @@ function TplFD({ d, w, h }) {
     );
 }
 
-/* ── TEMPLATE: FEATURE MID (dark left-border variant) ── */
+/* ── TEMPLATE: FEATURE LIGHT ── */
 function TplFL({ d, w, h }) {
     const m = mo(d.accentModule), p = Math.round(w * .059);
     const hfs = Math.round(w * .062), ifs = Math.round(w * .034);
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#061224', borderLeft: `6px solid ${m.c}` }}>
-            <Grid w={w} h={h} op={.035} />
-            <div style={{ position: 'absolute', bottom: 0, right: 0, width: w * .48, height: w * .48, background: `radial-gradient(circle at bottom right,rgba(${rgb(m.c)},.1) 0%,transparent 70%)`, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 6, display: 'flex', flexDirection: 'column', gap: Math.round(h * .026) }}>
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: '#F4F6F9', borderLeft: `8px solid ${m.c}` }}>
+            <div style={{ position: 'absolute', bottom: 0, right: 0, width: w * .48, height: w * .48, background: `radial-gradient(circle at bottom right,${m.s} 0%,transparent 70%)`, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p, paddingBottom: p, paddingRight: p, paddingLeft: p + 8, display: 'flex', flexDirection: 'column', gap: Math.round(h * .026) }}>
                 <div>
                     <GovBadge mod={d.accentModule} fs={20} />
-                    <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.15, letterSpacing: '-.025em', marginTop: Math.round(h * .024) }}>{d.headline}</div>
-                    {d.subheadline && <div style={{ fontSize: Math.round(w * .031), color: 'rgba(255,255,255,.44)', marginTop: Math.round(h * .012), lineHeight: 1.4, fontWeight: 500 }}>{d.subheadline}</div>}
+                    <div style={{ fontSize: hfs, fontWeight: 900, color: DS.light.t1, lineHeight: 1.15, letterSpacing: '-.025em', marginTop: Math.round(h * .024) }}>{d.headline}</div>
+                    {d.subheadline && <div style={{ fontSize: Math.round(w * .031), color: DS.light.t2, marginTop: Math.round(h * .012), lineHeight: 1.4, fontWeight: 500 }}>{d.subheadline}</div>}
                 </div>
                 {d.items?.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(h * .014), flex: 1 }}>
                         {d.items.map((item, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .019)}px ${Math.round(w * .03)}px`, background: 'rgba(255,255,255,.04)', border: `1px solid rgba(255,255,255,.07)`, borderRadius: 14, borderLeft: `3px solid ${m.c}` }}>
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: `${Math.round(h * .019)}px ${Math.round(w * .03)}px`, background: 'rgba(255,255,255,.9)', border: `1px solid ${DS.light.bord}`, borderRadius: 14, borderLeft: `3px solid ${m.c}`, boxShadow: '0 1px 4px rgba(0,0,0,.05)' }}>
                                 <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: m.s, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: m.c }}>{i + 1}</div>
-                                <span style={{ fontSize: ifs, color: 'rgba(255,255,255,.72)', fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
+                                <span style={{ fontSize: ifs, color: DS.light.t1, fontWeight: 500, lineHeight: 1.35 }}>{item}</span>
                             </div>
                         ))}
                     </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: Math.round(h * .012), borderTop: '1px solid rgba(255,255,255,.07)' }}>
-                    <Sig fs={19} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: Math.round(h * .012), borderTop: `1px solid ${DS.light.bord}` }}>
+                    <Sig dark={false} fs={19} />
                     {d.cta && <div style={{ background: m.c, color: '#fff', padding: '12px 24px', borderRadius: 100, fontSize: 20, fontWeight: 800 }}>{d.cta} →</div>}
                 </div>
             </div>
@@ -335,15 +334,17 @@ function TplStory({ d, w, h }) {
 
 function pickTpl(fmt, idx, total, sl) {
     if (fmt === 'story') return 'story';
-    if (fmt === 'post') return sl.theme === 'light' ? 'hero-mid' : 'hero-dark';
+    const isLight = sl.theme === 'light';
+    if (fmt === 'post') return isLight ? 'hero-light' : 'hero-dark';
+    // carousel: capa sempre dark, CTA sempre dark, meio segue theme da IA
     if (idx === 0) return 'hero-dark';
     if (idx === total - 1) return 'cta-dark';
-    return idx % 2 === 1 ? 'feature-dark' : 'feature-mid';
+    return isLight ? 'feature-light' : 'feature-dark';
 }
 function Slide({ slide, w, h, fmt, idx, total }) {
     const t = pickTpl(fmt, idx, total, slide);
     const p = { d: slide, w, h };
-    const map = { 'hero-dark': TplHD, 'hero-mid': TplHL, 'feature-dark': TplFD, 'feature-mid': TplFL, 'cta-dark': TplCTA, 'story': TplStory };
+    const map = { 'hero-dark': TplHD, 'hero-light': TplHL, 'feature-dark': TplFD, 'feature-light': TplFL, 'cta-dark': TplCTA, 'story': TplStory };
     const T = map[t] || TplHD;
     return <T {...p} />;
 }
@@ -356,7 +357,7 @@ async function callAPI(fmt, fw, topic) {
     } else if (isC) {
         instr = `Gere entre 5 e 10 slides para carrossel (use quantos forem necessários para desenvolver bem a ideia):
 Slide 1 (theme:dark): cover/hook — headline que PARA o scroll com pergunta ou dado chocante
-Slides intermediários (theme:dark): desenvolva a narrativa com profundidade — dores, contexto, dados, solução, resultados, cases. Cada slide deve avançar a história, nunca repetir.
+Slides intermediários: varie os temas para criar contraste visual — use "dark" para slides de problema/dor/urgência, use "light" para slides de solução/benefício/resultado. O contraste reforça a virada narrativa. Cada slide avança a história, nunca repete.
 Slide final (theme:dark): CTA forte com urgência — o que o gestor perde a cada dia sem o CityOS
 Regra: prefira 7-8 slides quando o tema tiver múltiplas camadas. Use 5 apenas para temas simples.`;
     } else {
@@ -624,7 +625,7 @@ export default function App() {
                                                     {sl.phase ? `${sl.phase} — ` : `Slide ${i + 1} — `}{(sl.headline || '').substring(0, 26)}{(sl.headline || '').length > 26 ? '…' : ''}
                                                 </div>
                                                 <div style={{ fontSize: 10, color: '#3E4A5E', marginTop: 1 }}>
-                                                    ● Dark · {(DS.mod[sl.accentModule] || DS.mod.none).n}
+                                                    {sl.theme === 'light' ? '○ Light' : '● Dark'} · {(DS.mod[sl.accentModule] || DS.mod.none).n}
                                                 </div>
                                             </div>
                                             <button className="dbtn" style={{ width: 'auto', padding: '5px 10px', fontSize: 11, flexShrink: 0 }}
