@@ -152,7 +152,7 @@ function TplHD({ d, w, h }) {
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <GovBadge mod={d.accentModule} fs={20} />
                 <div>
-                    {d.stat && <div style={{ fontSize: stFs, fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .017), background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.4) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
+                    {d.stat && <div style={{ fontSize: stFs, fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .017), color: '#FFFFFF' }}>{d.stat}</div>}
                     {d.statLabel && <div style={{ fontSize: Math.round(sfs * .82), color: 'rgba(255,255,255,.42)', fontWeight: 500, marginBottom: Math.round(h * .022), lineHeight: 1.4 }}>{d.statLabel}</div>}
                     <div style={{ fontSize: hfs, fontWeight: 900, color: '#FFF', lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .02) }}>{d.headline}</div>
                     {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.48)', lineHeight: 1.45, fontWeight: 500, maxWidth: w * .83 }}>{d.subheadline}</div>}
@@ -276,7 +276,7 @@ function TplCTA({ d, w, h }) {
                     <GovBadge mod={d.accentModule} fs={20} />
                 </div>
                 <div>
-                    {d.stat && <div style={{ fontSize: Math.round(w * .138), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .018), background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.38) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
+                    {d.stat && <div style={{ fontSize: Math.round(w * .138), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', marginBottom: Math.round(h * .018), color: '#FFFFFF' }}>{d.stat}</div>}
                     <div style={{ fontSize: hfs, fontWeight: 900, color: '#FFF', lineHeight: 1.1, letterSpacing: '-.03em', marginBottom: Math.round(h * .024) }}>{d.headline}</div>
                     {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.46)', lineHeight: 1.5, fontWeight: 500, maxWidth: w * .8, margin: '0 auto' }}>{d.subheadline}</div>}
                 </div>
@@ -312,7 +312,7 @@ function TplStory({ d, w, h }) {
                 </div>
             </div>
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, paddingTop: p * 2.8, paddingBottom: p * 2.2, paddingLeft: p, paddingRight: p, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: Math.round(h * .027) }}>
-                {d.stat && <div style={{ fontSize: Math.round(w * .19), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', background: 'linear-gradient(180deg,#FFF 0%,rgba(255,255,255,.38) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{d.stat}</div>}
+                {d.stat && <div style={{ fontSize: Math.round(w * .19), fontWeight: 900, lineHeight: 1, letterSpacing: '-.05em', color: '#FFFFFF' }}>{d.stat}</div>}
                 {d.statLabel && <div style={{ fontSize: Math.round(sfs * .75), color: 'rgba(255,255,255,.48)', fontWeight: 500, lineHeight: 1.35 }}>{d.statLabel}</div>}
                 <div style={{ fontSize: hfs, fontWeight: 900, color: '#E8EDF5', lineHeight: 1.1, letterSpacing: '-.03em' }}>{d.headline}</div>
                 {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.5)', lineHeight: 1.45, fontWeight: 500, maxWidth: w * .92 }}>{d.subheadline}</div>}
