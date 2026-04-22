@@ -12,7 +12,7 @@ const DS = {
 };
 const DIMS = {
     post: { w: 1080, h: 1350, sc: 0.355, label: '1080 × 1350' },
-    carousel: { w: 1080, h: 1350, sc: 0.355, label: '1080 × 1350 / slide' },
+    carousel: { w: 1080, h: 1350, sc: 0.355, label: '1080 × 1350 / slide', maxSlides: 10 },
     story: { w: 1080, h: 1920, sc: 0.235, label: '1080 × 1920' },
 };
 const TOPICS = [
@@ -354,12 +354,11 @@ async function callAPI(fmt, fw, topic) {
     if (fmt === 'post') {
         instr = `Gere 1 slide (post único). Use stat impactante se aplicável.`;
     } else if (isC) {
-        instr = `Gere exatamente 5 slides para carrossel:
+        instr = `Gere entre 5 e 10 slides para carrossel (use quantos forem necessários para desenvolver bem a ideia):
 Slide 1 (theme:dark): cover/hook — headline que PARA o scroll com pergunta ou dado chocante
-Slide 2 (theme:dark): dores reais de gestores, 3 items com problemas específicos e mensuráveis
-Slide 3 (theme:dark): como o CityOS resolve, 3 items concretos de solução com resultado
-Slide 4 (theme:dark): resultados e benefícios reais, 3 items com impacto mensurável
-Slide 5 (theme:dark): CTA forte com urgência — o que o gestor perde a cada dia sem o CityOS`;
+Slides intermediários (theme:dark): desenvolva a narrativa com profundidade — dores, contexto, dados, solução, resultados, cases. Cada slide deve avançar a história, nunca repetir.
+Slide final (theme:dark): CTA forte com urgência — o que o gestor perde a cada dia sem o CityOS
+Regra: prefira 7-8 slides quando o tema tiver múltiplas camadas. Use 5 apenas para temas simples.`;
     } else {
         const phases = fw === 'AIDA' ? ['Atenção', 'Interesse', 'Desejo', 'Ação'] : ['Problema', 'Agitação', 'Impacto', 'Solução', 'CTA'];
         instr = `Gere ${phases.length} slides de story usando framework ${fw}.
@@ -495,7 +494,7 @@ export default function App() {
                 {/* Formato */}
                 <div>
                     <span className="lbl">Formato</span>
-                    {[{ v: 'post', l: 'Post Único', s: '1080 × 1350' }, { v: 'carousel', l: 'Carrossel', s: '5 slides' }, { v: 'story', l: 'Story', s: '1080 × 1920' }].map(f => (
+                    {[{ v: 'post', l: 'Post Único', s: '1080 × 1350' }, { v: 'carousel', l: 'Carrossel', s: 'até 10 slides' }, { v: 'story', l: 'Story', s: '1080 × 1920' }].map(f => (
                         <button key={f.v} onClick={() => { setFmt(f.v); setSlides([]); setCur(0); }}
                             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 13px', borderRadius: 10, border: 'none', cursor: 'pointer', marginBottom: 5, background: fmt === f.v ? 'rgba(0,87,183,.17)' : 'rgba(255,255,255,.02)', borderLeft: `3px solid ${fmt === f.v ? '#0057B7' : 'transparent'}`, transition: 'all .2s', fontFamily: "'Satoshi',sans-serif" }}>
                             <span style={{ fontSize: 13, fontWeight: 700, color: fmt === f.v ? '#4D9AFF' : '#7A849A' }}>{f.l}</span>
