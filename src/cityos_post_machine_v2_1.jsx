@@ -364,8 +364,14 @@ Regra: prefira 7-8 slides quando o tema tiver múltiplas camadas. Use 5 apenas p
         const phases = fw === 'AIDA' ? ['Atenção', 'Interesse', 'Desejo', 'Ação'] : ['Problema', 'Agitação', 'Impacto', 'Solução', 'CTA'];
         instr = `Gere ${phases.length} slides de story usando framework ${fw}.
 Fases em ordem: ${phases.join(', ')}.
-Inclua "phase" com o nome exato. Textos CURTOS e de alto impacto. Máx 2 items por slide.
-Todos os slides devem ter theme:dark.`;
+Inclua "phase" com o nome exato. Todos os slides com theme:dark.
+
+REGRA CRÍTICA DE DENSIDADE — cada slide deve ter NO MÁXIMO 2 elementos de conteúdo:
+- Slide de IMPACTO (stat): preencha stat + headline. Deixe subheadline, items e cta VAZIOS.
+- Slide de TEXTO PURO: preencha headline + subheadline. Deixe stat, items e cta VAZIOS.
+- Slide de LISTA: preencha headline + items (máx 2). Deixe stat, subheadline e cta VAZIOS.
+- Slide de CTA: preencha headline + cta. Deixe todo o resto VAZIO.
+NUNCA combine stat + subheadline + items no mesmo slide. Menos é mais.`;
     }
     let res;
     try {
@@ -662,7 +668,7 @@ export default function App() {
             </div>
 
             {/* HIDDEN EXPORT CONTAINER — explicit background prevents white artifacts */}
-            <div style={{ position: 'absolute', left: '-9999px', top: 0, pointerEvents: 'none', visibility: 'hidden' }}>
+            <div style={{ position: 'absolute', left: '-9999px', top: 0, pointerEvents: 'none' }}>
                 {slides.map((sl, i) => (
                     <div key={i} id={`exp${i}`} style={{
                         width: dims.w, height: dims.h,
