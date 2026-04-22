@@ -378,7 +378,7 @@ NUNCA combine stat + subheadline + items no mesmo slide. Menos é mais.`;
         res = await fetch('http://localhost:3001/api/generate', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514', max_tokens: 2500,
+                model: 'claude-sonnet-4-20250514', max_tokens: 2500, temperature: 1,
             messages: [{
                 role: 'user', content: `Você é o estrategista sênior de conteúdo do CityOS — plataforma govtech B2B SaaS para prefeituras brasileiras.
 
