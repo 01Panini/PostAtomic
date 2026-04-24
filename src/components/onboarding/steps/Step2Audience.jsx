@@ -4,9 +4,23 @@ import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
 import { TONE_OPTIONS } from '../../../constants/toneSamples';
 
+const IGIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+    </svg>
+);
+const LIIcon = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="2" width="20" height="20" rx="3" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M7 10v7M7 7v.5M12 17v-4a2 2 0 014 0v4M12 10v7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+);
+
 const PLATFORMS = [
-    { value: 'instagram', label: 'Instagram', icon: '📸' },
-    { value: 'linkedin', label: 'LinkedIn', icon: '💼' },
+    { value: 'instagram', label: 'Instagram', icon: <IGIcon /> },
+    { value: 'linkedin', label: 'LinkedIn', icon: <LIIcon /> },
 ];
 
 export default function Step2Audience({ data, onNext, onBack, saving }) {
@@ -55,7 +69,6 @@ export default function Step2Audience({ data, onNext, onBack, saving }) {
                         {TONE_OPTIONS.map((t) => (
                             <Card key={t.value} selected={form.tone === t.value} onClick={() => setForm(f => ({ ...f, tone: t.value }))}>
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-2xl">{t.icon}</span>
                                     <span className="text-sm font-bold text-text-1">{t.label}</span>
                                     <span className="text-xs text-text-3">{t.desc}</span>
                                     <span className="text-xs text-text-2 italic border-l-2 border-blue/30 pl-2 mt-1">{t.sample}</span>

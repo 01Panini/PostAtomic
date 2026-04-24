@@ -138,7 +138,7 @@ Responda APENAS JSON:
             <div className="flex gap-3">
                 <Button variant="secondary" size="md" onClick={onBack} className="w-28">← Voltar</Button>
                 <Button variant="primary" className="flex-1" onClick={finish} loading={finishing || saving}>
-                    🚀 Finalizar e Acessar Workspace
+                    Finalizar e Acessar Workspace
                 </Button>
             </div>
         </div>

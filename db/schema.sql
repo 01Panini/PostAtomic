@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS posts (
   format TEXT NOT NULL CHECK (format IN ('post', 'carousel', 'story')),
   framework TEXT,
   topic TEXT,
+  template_style TEXT DEFAULT 'classic',
   slides JSONB NOT NULL DEFAULT '[]',
   caption TEXT,
   hashtags TEXT,
@@ -49,8 +50,18 @@ CREATE TABLE IF NOT EXISTS usage (
   UNIQUE(tenant_id, month)
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_posts_tenant ON posts(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(tenant_id, created_at DESC);
+-- Daily limit: 3 posts per user per day, resets at 00:00
+CREATE TABLE IF NOT EXISTS daily_usage (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  posts_generated INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(user_id, date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_tenant       ON users(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_users_email        ON users(email);
+CREATE INDEX IF NOT EXISTS idx_posts_tenant       ON posts(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_posts_created      ON posts(tenant_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_tenant_month ON usage(tenant_id, month);
+CREATE INDEX IF NOT EXISTS idx_daily_usage_user   ON daily_usage(user_id, date);

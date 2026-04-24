@@ -2,7 +2,7 @@ import { useBrand } from '../../contexts/BrandContext';
 
 /* ── Helpers ── */
 function rgb(h) {
-    if (!h || !h.startsWith('#')) return '77,154,255';
+    if (!h || !h.startsWith('#')) return '37,99,235';
     return `${parseInt(h.slice(1, 3), 16)},${parseInt(h.slice(3, 5), 16)},${parseInt(h.slice(5, 7), 16)}`;
 }
 
@@ -13,13 +13,13 @@ const LIGHT = {
 
 const PHASE_COLORS = {
     'Atenção': '#F87171', 'Attention': '#F87171', 'Problema': '#F87171',
-    'Interesse': '#4D9AFF', 'Interest': '#4D9AFF', 'Agitação': '#FBBF24',
+    'Interesse': '#60A5FA', 'Interest': '#60A5FA', 'Agitação': '#FBBF24',
     'Desejo': '#34D399', 'Desire': '#34D399', 'Impacto': '#FBBF24',
     'Solução': '#34D399', 'Solution': '#34D399',
-    'Ação': '#4D9AFF', 'Action': '#4D9AFF', 'CTA': '#4D9AFF',
+    'Ação': '#60A5FA', 'Action': '#60A5FA', 'CTA': '#60A5FA',
 };
 
-function Grid({ w, h, op = 0.055, color = '#4D9AFF' }) {
+function Grid({ w, h, op = 0.055, color = '#2563EB' }) {
     const L = [], s = 108;
     for (let x = s; x < w; x += s) L.push(<line key={`v${x}`} x1={x} y1={0} x2={x} y2={h} stroke={`rgba(${rgb(color)},${op})`} strokeWidth={1} />);
     for (let y = s; y < h; y += s) L.push(<line key={`h${y}`} x1={0} y1={y} x2={w} y2={y} stroke={`rgba(${rgb(color)},${op})`} strokeWidth={1} />);
@@ -34,16 +34,6 @@ function Orb({ x, y, r, color, o = 0.2 }) {
             background: `radial-gradient(circle,rgba(${rgb(color)},${o}) 0%,transparent 70%)`,
         }} />
     );
-}
-
-function getBadgeStyle(modColor) {
-    return {
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        padding: '8px 22px', borderRadius: 9999,
-        background: modColor + '22', border: `1px solid ${modColor}28`,
-        fontSize: 20, fontWeight: 800, letterSpacing: '.08em',
-        color: modColor, textTransform: 'uppercase',
-    };
 }
 
 function GovBadge({ chip, modColor, fs = 20 }) {
@@ -75,13 +65,17 @@ function Sig({ dark = true, fs = 19, name = 'PostAtomic' }) {
     );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   CLASSIC TEMPLATES
+═══════════════════════════════════════════════════════════════ */
+
 /* ── TEMPLATE: HERO DARK ── */
 function TplHD({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const primary = colors.primary || '#0057B7';
-    const bgDark = colors.bgDark || '#040C1A';
-    const accent = colors.accent || '#4D9AFF';
+    const primary = colors.primary || '#2563EB';
+    const bgDark = colors.bgDark || '#03091A';
+    const accent = colors.accent || '#60A5FA';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
@@ -125,9 +119,8 @@ function TplHD({ d, w, h, brand }) {
 function TplHL({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const primary = colors.primary || '#0057B7';
-    const accent = colors.accent || '#4D9AFF';
-    const bgLight = colors.bgLight || '#F4F6F9';
+    const primary = colors.primary || '#2563EB';
+    const accent = colors.accent || '#60A5FA';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
@@ -160,7 +153,7 @@ function TplHL({ d, w, h, brand }) {
 function TplFD({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const accent = colors.accent || '#4D9AFF';
+    const accent = colors.accent || '#60A5FA';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
@@ -168,7 +161,7 @@ function TplFD({ d, w, h, brand }) {
     const hfs = Math.round(w * .062), ifs = Math.round(w * .034);
 
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: 'linear-gradient(155deg,#040C1A 0%,#060D1B 100%)' }}>
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: 'linear-gradient(155deg,#03091A 0%,#060E20 100%)' }}>
             <Grid w={w} h={h} color={accent} op={.04} />
             <Orb x={w} y={0} r={w * .65} color={modColor} o={.07} />
             <div style={{ position: 'absolute', top: 0, left: p, right: p, height: 3, background: `linear-gradient(90deg,${modColor} 0%,transparent 85%)` }} />
@@ -201,7 +194,7 @@ function TplFD({ d, w, h, brand }) {
 function TplFL({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const accent = colors.accent || '#4D9AFF';
+    const accent = colors.accent || '#60A5FA';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
@@ -240,8 +233,8 @@ function TplFL({ d, w, h, brand }) {
 function TplCTA({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const primary = colors.primary || '#0057B7';
-    const accent = colors.accent || '#4D9AFF';
+    const primary = colors.primary || '#2563EB';
+    const accent = colors.accent || '#60A5FA';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
@@ -250,7 +243,7 @@ function TplCTA({ d, w, h, brand }) {
     const sfs = Math.round(w * .038);
 
     return (
-        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: `radial-gradient(ellipse 115% 70% at 50% 108%,rgba(${rgb(primary)},.42) 0%,#040C1A 55%)` }}>
+        <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: `radial-gradient(ellipse 115% 70% at 50% 108%,rgba(${rgb(primary)},.42) 0%,#03091A 55%)` }}>
             <Grid w={w} h={h} color={accent} />
             <Orb x={w * .5} y={h} r={w * .85} color={primary} o={.18} />
             {[.38, .52, .67].map((r, i) => (
@@ -266,7 +259,7 @@ function TplCTA({ d, w, h, brand }) {
                     {d.subheadline && <div style={{ fontSize: sfs, color: 'rgba(255,255,255,.46)', lineHeight: 1.5, fontWeight: 500, maxWidth: w * .8, margin: '0 auto' }}>{d.subheadline}</div>}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, width: '100%' }}>
-                    {d.cta && <div style={{ background: `linear-gradient(135deg,${primary} 0%,${colors.primaryDark || '#003A82'} 100%)`, color: '#fff', padding: `${Math.round(p * .36)}px ${Math.round(p * .82)}px`, borderRadius: 100, fontSize: 26, fontWeight: 800, boxShadow: `0 0 44px rgba(${rgb(primary)},.58)`, letterSpacing: '-.01em' }}>{d.cta} →</div>}
+                    {d.cta && <div style={{ background: `linear-gradient(135deg,${primary} 0%,${colors.primaryDark || '#1E40AF'} 100%)`, color: '#fff', padding: `${Math.round(p * .36)}px ${Math.round(p * .82)}px`, borderRadius: 100, fontSize: 26, fontWeight: 800, boxShadow: `0 0 44px rgba(${rgb(primary)},.58)`, letterSpacing: '-.01em' }}>{d.cta} →</div>}
                     <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start' }}>
                         <Sig fs={19} name={sigName} />
                     </div>
@@ -280,15 +273,15 @@ function TplCTA({ d, w, h, brand }) {
 function TplStory({ d, w, h, brand }) {
     const colors = brand?.colors || {};
     const modMap = brand?.modMap || {};
-    const accent = colors.accent || '#4D9AFF';
-    const primary = colors.primary || '#0057B7';
+    const accent = colors.accent || '#60A5FA';
+    const primary = colors.primary || '#2563EB';
     const mod = modMap[d.accentModule] || modMap.none || { c: accent };
     const modColor = mod.c;
     const sigName = brand?.tenantMeta?.name || 'PostAtomic';
     const pc = PHASE_COLORS[d.phase] || modColor;
     const isCTAPhase = ['Ação', 'CTA', 'Solução'].includes(d.phase);
     const p = Math.round(w * .074), hfs = Math.round(w * .11), sfs = Math.round(w * .05);
-    const bg = `radial-gradient(ellipse 110% 65% at 50% ${isCTAPhase ? '105%' : '0%'},rgba(${rgb(pc)},.22) 0%,#040C1A 58%)`;
+    const bg = `radial-gradient(ellipse 110% 65% at 50% ${isCTAPhase ? '105%' : '0%'},rgba(${rgb(pc)},.22) 0%,#03091A 58%)`;
 
     return (
         <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', fontFamily: "'Satoshi',sans-serif", background: bg }}>
@@ -318,13 +311,365 @@ function TplStory({ d, w, h, brand }) {
                         ))}
                     </div>
                 )}
-                {d.cta && <div style={{ display: 'inline-flex', alignSelf: 'flex-start', background: `linear-gradient(135deg,${primary} 0%,${colors.primaryDark || '#003A82'} 100%)`, color: '#fff', padding: `${Math.round(p * .3)}px ${Math.round(p * .78)}px`, borderRadius: 100, fontSize: 28, fontWeight: 800, boxShadow: `0 4px 28px rgba(${rgb(primary)},.5)`, marginTop: Math.round(h * .01) }}>{d.cta} →</div>}
+                {d.cta && <div style={{ display: 'inline-flex', alignSelf: 'flex-start', background: `linear-gradient(135deg,${primary} 0%,${colors.primaryDark || '#1E40AF'} 100%)`, color: '#fff', padding: `${Math.round(p * .3)}px ${Math.round(p * .78)}px`, borderRadius: 100, fontSize: 28, fontWeight: 800, boxShadow: `0 4px 28px rgba(${rgb(primary)},.5)`, marginTop: Math.round(h * .01) }}>{d.cta} →</div>}
             </div>
         </div>
     );
 }
 
-function pickTpl(fmt, idx, total, sl) {
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM TEMPLATE: IMPACT
+   Stat-dominant. Giant number commands attention, minimal copy.
+   Best for: data-driven posts, milestone announcements, results.
+═══════════════════════════════════════════════════════════════ */
+function TplImpact({ d, w, h, brand }) {
+    const colors = brand?.colors || {};
+    const modMap = brand?.modMap || {};
+    const primary = colors.primary || '#2563EB';
+    const accent = colors.accent || '#60A5FA';
+    const mod = modMap[d.accentModule] || modMap.none || { c: accent };
+    const modColor = mod.c;
+    const sigName = brand?.tenantMeta?.name || 'PostAtomic';
+    const p = Math.round(w * .07);
+
+    const statFs = Math.round(w * .26);
+    const headFs = Math.round(w * .07);
+    const subFs = Math.round(w * .04);
+
+    return (
+        <div style={{
+            width: w, height: h, position: 'relative', overflow: 'hidden',
+            fontFamily: "'Satoshi',sans-serif",
+            background: '#03091A',
+        }}>
+            {/* Full-bleed diagonal accent panel */}
+            <div style={{
+                position: 'absolute', top: 0, right: 0,
+                width: w * .55, height: h,
+                background: `linear-gradient(155deg, ${modColor}18 0%, transparent 60%)`,
+                pointerEvents: 'none',
+            }} />
+            {/* Bottom glow */}
+            <div style={{
+                position: 'absolute', bottom: -h * .1, left: 0, right: 0, height: h * .5,
+                background: `radial-gradient(ellipse 90% 60% at 30% 100%, rgba(${rgb(primary)},0.22) 0%, transparent 70%)`,
+                pointerEvents: 'none',
+            }} />
+            {/* Horizontal rule accent */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: w * .35, height: 4, background: modColor }} />
+
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {/* Top */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <GovBadge chip={d.chip} modColor={modColor} fs={20} />
+                    <Sig dark fs={18} name={sigName} />
+                </div>
+
+                {/* Central stat block */}
+                <div>
+                    {d.stat && (
+                        <div style={{
+                            fontSize: statFs, fontWeight: 900, lineHeight: .85,
+                            letterSpacing: '-.06em', color: '#FFFFFF',
+                            marginBottom: Math.round(h * .025),
+                        }}>
+                            {d.stat}
+                        </div>
+                    )}
+                    {d.statLabel && (
+                        <div style={{
+                            fontSize: Math.round(subFs * .88), color: modColor,
+                            fontWeight: 700, letterSpacing: '.04em',
+                            textTransform: 'uppercase',
+                            marginBottom: Math.round(h * .03),
+                        }}>
+                            {d.statLabel}
+                        </div>
+                    )}
+                    <div style={{
+                        width: w * .12, height: 3,
+                        background: `linear-gradient(90deg, ${modColor}, transparent)`,
+                        marginBottom: Math.round(h * .03),
+                    }} />
+                    <div style={{
+                        fontSize: headFs, fontWeight: 900, color: '#F0F6FF',
+                        lineHeight: 1.1, letterSpacing: '-.025em',
+                        maxWidth: w * .85,
+                        marginBottom: d.subheadline ? Math.round(h * .018) : 0,
+                    }}>
+                        {d.headline}
+                    </div>
+                    {d.subheadline && (
+                        <div style={{ fontSize: subFs, color: 'rgba(255,255,255,.45)', lineHeight: 1.5, fontWeight: 400, maxWidth: w * .75 }}>
+                            {d.subheadline}
+                        </div>
+                    )}
+                </div>
+
+                {/* Bottom CTA */}
+                {d.cta && (
+                    <div style={{
+                        display: 'inline-flex', alignSelf: 'flex-start',
+                        background: modColor, color: '#fff',
+                        padding: `${Math.round(p * .28)}px ${Math.round(p * .65)}px`,
+                        borderRadius: 100, fontSize: 24, fontWeight: 800,
+                        boxShadow: `0 0 32px rgba(${rgb(modColor)}, .45)`,
+                        letterSpacing: '-.01em',
+                    }}>
+                        {d.cta} →
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM TEMPLATE: CONTRAST
+   Split-panel layout. Left = dark problem, right = light solution.
+   Best for: before/after, problem→solution, comparisons.
+═══════════════════════════════════════════════════════════════ */
+function TplContrast({ d, w, h, brand }) {
+    const colors = brand?.colors || {};
+    const modMap = brand?.modMap || {};
+    const primary = colors.primary || '#2563EB';
+    const accent = colors.accent || '#60A5FA';
+    const mod = modMap[d.accentModule] || modMap.none || { c: accent };
+    const modColor = mod.c;
+    const sigName = brand?.tenantMeta?.name || 'PostAtomic';
+    const p = Math.round(w * .06);
+
+    const headFs = Math.round(w * .076);
+    const subFs = Math.round(w * .038);
+    const itemFs = Math.round(w * .034);
+
+    // Split: left panel is dark (problem), right is accent-tinted (solution)
+    const splitX = Math.round(w * .5);
+
+    return (
+        <div style={{
+            width: w, height: h, position: 'relative', overflow: 'hidden',
+            fontFamily: "'Satoshi',sans-serif",
+            background: '#03091A',
+        }}>
+            {/* Right panel lighter tint */}
+            <div style={{
+                position: 'absolute', left: splitX, top: 0, right: 0, bottom: 0,
+                background: `linear-gradient(135deg, ${modColor}14 0%, ${modColor}08 100%)`,
+                borderLeft: `2px solid ${modColor}30`,
+                pointerEvents: 'none',
+            }} />
+
+            {/* Diagonal connector graphic */}
+            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 2 }}>
+                <line x1={splitX} y1={0} x2={splitX} y2={h} stroke={`${modColor}30`} strokeWidth="2" strokeDasharray="8 8" />
+            </svg>
+
+            {/* Background orbs */}
+            <Orb x={splitX * 0.4} y={h * 0.3} r={w * .4} color={'#1E3560'} o={.3} />
+            <Orb x={splitX + splitX * 0.6} y={h * 0.7} r={w * .35} color={modColor} o={.12} />
+
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', flexDirection: 'column', padding: p, gap: Math.round(h * .025) }}>
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <GovBadge chip={d.chip} modColor={modColor} fs={18} />
+                    <Sig dark fs={17} name={sigName} />
+                </div>
+
+                {/* Stat row */}
+                {d.stat && (
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: Math.round(w * .02) }}>
+                        <span style={{ fontSize: Math.round(w * .17), fontWeight: 900, letterSpacing: '-.06em', color: '#FFF', lineHeight: 1 }}>{d.stat}</span>
+                        {d.statLabel && <span style={{ fontSize: subFs, color: modColor, fontWeight: 700, letterSpacing: '.03em', textTransform: 'uppercase' }}>{d.statLabel}</span>}
+                    </div>
+                )}
+
+                {/* Main headline */}
+                <div style={{ fontSize: headFs, fontWeight: 900, color: '#F0F6FF', lineHeight: 1.08, letterSpacing: '-.03em', maxWidth: w * .9 }}>
+                    {d.headline}
+                </div>
+
+                {d.subheadline && (
+                    <div style={{ fontSize: subFs, color: 'rgba(255,255,255,.5)', lineHeight: 1.5, fontWeight: 400, maxWidth: w * .8 }}>
+                        {d.subheadline}
+                    </div>
+                )}
+
+                {/* Two-column items if present */}
+                {d.items?.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: Math.round(h * .018), flex: 1, alignContent: 'start' }}>
+                        {d.items.map((item, i) => (
+                            <div key={i} style={{
+                                padding: `${Math.round(h * .016)}px ${Math.round(w * .032)}px`,
+                                background: i % 2 === 0 ? 'rgba(255,255,255,.04)' : `${modColor}12`,
+                                border: `1px solid ${i % 2 === 0 ? 'rgba(255,255,255,.07)' : modColor + '25'}`,
+                                borderRadius: 14,
+                            }}>
+                                <div style={{ fontSize: itemFs, color: 'rgba(255,255,255,.75)', fontWeight: 500, lineHeight: 1.4 }}>{item}</div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* CTA */}
+                {d.cta && (
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        paddingTop: Math.round(h * .016),
+                        borderTop: '1px solid rgba(255,255,255,.07)',
+                    }}>
+                        <div style={{ fontSize: subFs, color: 'rgba(255,255,255,.35)', fontWeight: 500 }}>Próximo passo</div>
+                        <div style={{
+                            background: `linear-gradient(135deg, ${primary}, ${modColor})`,
+                            color: '#fff', padding: `${Math.round(p * .25)}px ${Math.round(p * .6)}px`,
+                            borderRadius: 100, fontSize: 22, fontWeight: 800,
+                            boxShadow: `0 4px 20px rgba(${rgb(primary)}, .4)`,
+                        }}>
+                            {d.cta} →
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM TEMPLATE: MANIFESTO
+   Full gradient editorial. Bold serif-style typography.
+   Best for: thought leadership, opinion pieces, brand moments.
+═══════════════════════════════════════════════════════════════ */
+function TplManifesto({ d, w, h, brand }) {
+    const colors = brand?.colors || {};
+    const modMap = brand?.modMap || {};
+    const primary = colors.primary || '#2563EB';
+    const accent = colors.accent || '#60A5FA';
+    const mod = modMap[d.accentModule] || modMap.none || { c: accent };
+    const modColor = mod.c;
+    const sigName = brand?.tenantMeta?.name || 'PostAtomic';
+    const p = Math.round(w * .075);
+
+    const headFs = h > 1400 ? Math.round(w * .118) : Math.round(w * .105);
+    const subFs = Math.round(w * .042);
+    const chipFs = 19;
+
+    return (
+        <div style={{
+            width: w, height: h, position: 'relative', overflow: 'hidden',
+            fontFamily: "'Satoshi',sans-serif",
+            background: `linear-gradient(160deg, #060E20 0%, #0A1628 40%, ${modColor}18 100%)`,
+        }}>
+            {/* Large decorative background text */}
+            <div style={{
+                position: 'absolute', bottom: -Math.round(h * .03), left: p,
+                fontSize: Math.round(w * .5), fontWeight: 900, letterSpacing: '-.08em',
+                color: 'rgba(255,255,255,.025)', lineHeight: 1,
+                userSelect: 'none', pointerEvents: 'none',
+                fontFamily: "'Satoshi',sans-serif",
+            }}>
+                {(d.stat || '∞').replace(/[^0-9A-Z%×+]/gi, '') || '∞'}
+            </div>
+
+            {/* Diagonal stripe */}
+            <div style={{
+                position: 'absolute', top: 0, right: 0,
+                width: 5, height: h,
+                background: `linear-gradient(180deg, ${modColor} 0%, transparent 100%)`,
+                opacity: 0.6,
+            }} />
+
+            {/* Top color bar */}
+            <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 5,
+                background: `linear-gradient(90deg, ${modColor}, ${primary}, transparent)`,
+            }} />
+
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, padding: p, paddingTop: p + 12, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {/* Top label */}
+                <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 10,
+                    padding: `${Math.round(chipFs * .35)}px ${Math.round(chipFs * .75)}px`,
+                    borderRadius: 6, background: 'rgba(255,255,255,.06)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    fontSize: chipFs, fontWeight: 700, letterSpacing: '.1em',
+                    color: 'rgba(255,255,255,.55)', textTransform: 'uppercase',
+                    alignSelf: 'flex-start',
+                }}>
+                    {d.chip || 'MANIFESTO'}
+                </div>
+
+                {/* Main content block */}
+                <div>
+                    {d.stat && (
+                        <div style={{
+                            fontSize: Math.round(w * .2), fontWeight: 900, lineHeight: .9,
+                            letterSpacing: '-.07em', color: modColor,
+                            marginBottom: Math.round(h * .02),
+                        }}>
+                            {d.stat}
+                        </div>
+                    )}
+
+                    <div style={{
+                        fontSize: headFs, fontWeight: 900, color: '#FFFFFF',
+                        lineHeight: 1.05, letterSpacing: '-.04em',
+                        marginBottom: Math.round(h * .025),
+                    }}>
+                        {d.headline}
+                    </div>
+
+                    {d.subheadline && (
+                        <div style={{
+                            fontSize: subFs, color: 'rgba(255,255,255,.52)',
+                            lineHeight: 1.55, fontWeight: 400,
+                            maxWidth: w * .88,
+                            borderLeft: `3px solid ${modColor}`,
+                            paddingLeft: Math.round(w * .04),
+                        }}>
+                            {d.subheadline}
+                        </div>
+                    )}
+
+                    {d.items?.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: Math.round(h * .015), marginTop: Math.round(h * .025) }}>
+                            {d.items.map((item, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: Math.round(w * .025) }}>
+                                    <div style={{ width: Math.round(w * .022), height: Math.round(w * .022), borderRadius: '50%', background: modColor, flexShrink: 0, marginTop: Math.round(w * .009), boxShadow: `0 0 8px ${modColor}` }} />
+                                    <span style={{ fontSize: Math.round(subFs * .9), color: 'rgba(255,255,255,.65)', fontWeight: 500, lineHeight: 1.4 }}>{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <Sig dark fs={18} name={sigName} />
+                        {d.cta && <span style={{ fontSize: Math.round(subFs * .82), color: modColor, fontWeight: 700 }}>{d.cta}</span>}
+                    </div>
+                    {/* Visual accent dots */}
+                    <div style={{ display: 'flex', gap: 6 }}>
+                        {[1, 0.5, 0.25].map((op, i) => (
+                            <div key={i} style={{ width: Math.round(w * .018), height: Math.round(w * .018), borderRadius: '50%', background: modColor, opacity: op }} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TEMPLATE ROUTER
+═══════════════════════════════════════════════════════════════ */
+function pickTpl(fmt, idx, total, sl, templateStyle) {
+    // Premium templates override everything
+    if (templateStyle === 'impact')    return 'impact';
+    if (templateStyle === 'contrast')  return 'contrast';
+    if (templateStyle === 'manifesto') return 'manifesto';
+
+    // Classic routing
     if (fmt === 'story') return 'story';
     const isLight = sl.theme === 'light';
     if (fmt === 'post') return isLight ? 'hero-light' : 'hero-dark';
@@ -333,17 +678,20 @@ function pickTpl(fmt, idx, total, sl) {
     return isLight ? 'feature-light' : 'feature-dark';
 }
 
-export function Slide({ slide, w, h, fmt, idx, total }) {
+export function Slide({ slide, w, h, fmt, idx, total, templateStyle = 'classic' }) {
     const brand = useBrand();
-    const t = pickTpl(fmt, idx, total, slide);
+    const t = pickTpl(fmt, idx, total, slide, templateStyle);
     const props = { d: slide, w, h, brand };
     const map = {
-        'hero-dark': TplHD,
-        'hero-light': TplHL,
+        'hero-dark':    TplHD,
+        'hero-light':   TplHL,
         'feature-dark': TplFD,
-        'feature-light': TplFL,
-        'cta-dark': TplCTA,
-        'story': TplStory,
+        'feature-light':TplFL,
+        'cta-dark':     TplCTA,
+        'story':        TplStory,
+        'impact':       TplImpact,
+        'contrast':     TplContrast,
+        'manifesto':    TplManifesto,
     };
     const T = map[t] || TplHD;
     return <T {...props} />;

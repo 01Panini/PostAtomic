@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 
 export function useUsage() {
-    const [usage, setUsage] = useState({ used: 0, limit: 10, plan: 'trial' });
+    const [usage, setUsage] = useState({
+        used: 0,
+        limit: 100,
+        plan: 'trial',
+        dailyUsed: 0,
+        dailyLimit: 3,
+    });
 
-    useEffect(() => {
-        api.usage.get().then(setUsage).catch(() => {});
-    }, []);
+    const load = () => api.usage.get().then(setUsage).catch(() => {});
 
-    const refresh = () => api.usage.get().then(setUsage).catch(() => {});
+    useEffect(() => { load(); }, []);
 
-    return { ...usage, refresh };
+    return { ...usage, refresh: load };
 }

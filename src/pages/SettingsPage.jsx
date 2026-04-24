@@ -9,8 +9,8 @@ import { TagInput } from '../components/ui/TagInput';
 
 function Section({ title, children }) {
     return (
-        <div className="bg-surface border border-border rounded-2xl p-6 flex flex-col gap-5">
-            <h2 className="text-sm font-extrabold text-text-1 border-b border-border pb-3">{title}</h2>
+        <div className="bg-[#060E20] border border-white/[.05] rounded-2xl p-6 flex flex-col gap-5">
+            <h2 className="text-sm font-bold text-[#F0F6FF] border-b border-white/[.05] pb-4">{title}</h2>
             {children}
         </div>
     );
@@ -24,7 +24,6 @@ export default function SettingsPage() {
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState('');
 
-    // Identity
     const [name, setName] = useState(tenant?.name || '');
     const [description, setDescription] = useState(tenant?.description || '');
     const [segment, setSegment] = useState(tenant?.segment || '');
@@ -32,14 +31,12 @@ export default function SettingsPage() {
     const [defaultCta, setDefaultCta] = useState(tenant?.default_cta || '');
     const [tags, setTags] = useState(tenant?.tags || []);
 
-    // Colors
     const cfg = tenant?.brand_config || {};
-    const [primary, setPrimary] = useState(cfg.primary || '#0057B7');
-    const [accent, setAccent] = useState(cfg.accent || '#4D9AFF');
-    const [bgDark, setBgDark] = useState(cfg.bgDark || '#040C1A');
+    const [primary, setPrimary] = useState(cfg.primary || '#2563EB');
+    const [accent, setAccent] = useState(cfg.accent || '#60A5FA');
+    const [bgDark, setBgDark] = useState(cfg.bgDark || '#03091A');
     const [bgLight, setBgLight] = useState(cfg.bgLight || '#F4F6F9');
 
-    // Modules
     const [modules, setModules] = useState(cfg.modules || []);
     const [handle, setHandle] = useState(cfg.handle || '');
     const [domain, setDomain] = useState(cfg.domain || '');
@@ -52,10 +49,7 @@ export default function SettingsPage() {
         setError('');
         try {
             await api.tenants.update(tenant.slug, {
-                name,
-                description,
-                segment,
-                tone,
+                name, description, segment, tone,
                 default_cta: defaultCta,
                 tags,
                 brand_config: {
@@ -77,32 +71,37 @@ export default function SettingsPage() {
 
     if (!isOwner) {
         return (
-            <div className="h-full flex items-center justify-center p-8">
+            <div className="h-full flex items-center justify-center p-8 bg-[#03091A]">
                 <div className="text-center max-w-sm">
-                    <div className="text-4xl mb-4">🔒</div>
-                    <p className="text-base font-extrabold text-text-1 mb-2">Apenas o proprietário</p>
-                    <p className="text-sm text-text-2">Somente o owner da conta pode editar as configurações da marca.</p>
+                    <div className="w-14 h-14 rounded-2xl bg-[#1E3560] border border-white/[.05] flex items-center justify-center mx-auto mb-4">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" stroke="#4D6B8A" strokeWidth="1.8" />
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="#4D6B8A" strokeWidth="1.8" strokeLinecap="round" />
+                        </svg>
+                    </div>
+                    <p className="text-base font-bold text-[#F0F6FF] mb-2">Apenas o proprietário</p>
+                    <p className="text-sm text-[#4D6B8A]">Somente o owner da conta pode editar as configurações da marca.</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="h-full overflow-y-auto p-6" style={{ fontFamily: "'Satoshi',sans-serif" }}>
+        <div className="h-full overflow-y-auto p-6 bg-[#03091A]">
             <div className="max-w-2xl mx-auto flex flex-col gap-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-2xl font-black tracking-tight mb-1 text-text-1">Configurações</h1>
-                    <p className="text-sm text-text-2">Edite a identidade e a marca do workspace.</p>
+                    <h1 className="text-2xl font-bold tracking-tight mb-1 text-[#F0F6FF]">Configurações</h1>
+                    <p className="text-sm text-[#4D6B8A]">Edite a identidade e a marca do workspace.</p>
                 </div>
 
                 {/* Identity */}
                 <Section title="Identidade">
                     <Input label="Nome da empresa" value={name} onChange={(e) => setName(e.target.value)} />
                     <div>
-                        <label className="block text-[10px] font-extrabold tracking-[.12em] uppercase text-text-3 mb-2">Descrição</label>
+                        <label className="block text-[10px] font-bold tracking-[.12em] uppercase text-[#4D6B8A] mb-2">Descrição</label>
                         <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
-                            className="w-full bg-base border border-border-2 rounded-xl text-text-1 text-sm px-4 py-3 outline-none resize-none placeholder:text-text-3 focus:border-blue transition-colors" />
+                            className="w-full bg-[#03091A] border border-[#1E3560] rounded-xl text-[#F0F6FF] text-sm px-4 py-3 outline-none resize-none placeholder:text-[#2D4D7E] focus:border-[#2563EB]/60 transition-colors" />
                     </div>
                     <Input label="Segmento" value={segment} onChange={(e) => setSegment(e.target.value)} placeholder="Ex: Govtech, SaaS, Saúde…" />
                     <Input label="Tom de voz" value={tone} onChange={(e) => setTone(e.target.value)} placeholder="Ex: Autoritativo, Próximo, Técnico…" />
@@ -111,9 +110,8 @@ export default function SettingsPage() {
 
                 {/* Tags */}
                 <Section title="Tags de Conteúdo">
-                    <TagInput tags={tags} onChange={setTags} min={0} max={15}
-                        suggestions={[]} />
-                    <p className="text-xs text-text-3">Tags orientam a IA na geração de conteúdo.</p>
+                    <TagInput tags={tags} onChange={setTags} min={0} max={15} suggestions={[]} />
+                    <p className="text-xs text-[#4D6B8A]">Tags orientam a IA na geração de conteúdo.</p>
                 </Section>
 
                 {/* Colors */}
@@ -130,7 +128,7 @@ export default function SettingsPage() {
                 <Section title="Módulos / Produtos">
                     <div className="flex flex-col gap-3">
                         {modules.map((m, i) => (
-                            <div key={m.key || i} className="flex items-center gap-3 bg-base border border-border rounded-xl p-3">
+                            <div key={m.key || i} className="flex items-center gap-3 bg-[#03091A] border border-[#1E3560] rounded-xl p-3">
                                 <div className="flex-1">
                                     <Input label={`Módulo ${i + 1}`} value={m.name}
                                         onChange={(e) => setModules(ms => ms.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
@@ -140,12 +138,12 @@ export default function SettingsPage() {
                                         onChange={(v) => setModules(ms => ms.map((x, j) => j === i ? { ...x, color: v } : x))} />
                                 </div>
                                 <button onClick={() => setModules(ms => ms.filter((_, j) => j !== i))}
-                                    className="text-text-3 hover:text-red-400 transition-colors text-lg mt-4">×</button>
+                                    className="text-[#4D6B8A] hover:text-[#EF4444] transition-colors text-xl mt-4 flex-shrink-0">×</button>
                             </div>
                         ))}
                         {modules.length < 5 && (
                             <button onClick={() => setModules(m => [...m, { key: `mod_${Date.now()}`, name: '', color: accent }])}
-                                className="w-full border border-dashed border-border-2 rounded-xl py-3 text-sm text-text-3 hover:border-blue/40 hover:text-blue-light transition-colors">
+                                className="w-full border border-dashed border-[#1E3560] rounded-xl py-3 text-sm text-[#4D6B8A] hover:border-[#2563EB]/40 hover:text-[#60A5FA] transition-colors">
                                 + Adicionar módulo
                             </button>
                         )}
@@ -162,11 +160,11 @@ export default function SettingsPage() {
 
                 {/* Save */}
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-400">{error}</div>
+                    <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-xl px-4 py-3 text-sm text-[#F87171]">{error}</div>
                 )}
 
                 <Button variant="primary" size="lg" onClick={save} loading={saving}>
-                    {saved ? '✓ Salvo!' : 'Salvar configurações'}
+                    {saved ? 'Salvo com sucesso' : 'Salvar configurações'}
                 </Button>
             </div>
         </div>

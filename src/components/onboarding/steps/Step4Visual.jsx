@@ -77,7 +77,14 @@ export default function Step4Visual({ data, onNext, onBack, saving }) {
                 <span className="text-[10px] font-extrabold tracking-[.12em] uppercase text-text-3">Logo (opcional)</span>
                 <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#162035] flex items-center justify-center bg-white/[.02] overflow-hidden flex-shrink-0">
-                        {logo ? <img src={logo} className="w-full h-full object-cover" alt="logo" /> : <span className="text-2xl">🏢</span>}
+                        {logo ? <img src={logo} className="w-full h-full object-cover" alt="logo" /> : (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 21V7l9-4 9 4v14" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+                                <rect x="9" y="14" width="6" height="7" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                                <rect x="5" y="11" width="3" height="3" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                                <rect x="16" y="11" width="3" height="3" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                            </svg>
+                        )}
                     </div>
                     <div>
                         <label className="cursor-pointer inline-flex items-center gap-2 text-sm text-blue-light border border-blue/30 rounded-lg px-3 py-2 hover:bg-blue/10 transition-colors">
@@ -95,7 +102,7 @@ export default function Step4Visual({ data, onNext, onBack, saving }) {
                 <div className="flex items-center justify-between">
                     <span className="text-[10px] font-extrabold tracking-[.12em] uppercase text-text-3">Paleta de Cores</span>
                     <Button variant="secondary" size="sm" onClick={suggestPalettes} loading={suggesting}>
-                        ✨ Sugerir com IA
+                        Sugerir com IA
                     </Button>
                 </div>
                 <div className="grid grid-cols-3 gap-3">

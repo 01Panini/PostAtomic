@@ -13,12 +13,13 @@ app.use(cors());
 app.use(express.json({ limit: '4mb' }));
 
 const db = neon(process.env.DATABASE_URL);
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+const JWT_SECRET  = process.env.JWT_SECRET || 'dev_secret_change_me';
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 
-const PLANS = { trial: 10, starter: 20, pro: 100, agency: 500 };
+const PLANS       = { trial: 10, starter: 20, pro: 100, agency: 500 };
+const DAILY_LIMIT = 3; // Global: 3 posts per user per day, resets at 00:00
 
-/* ─── helpers ─────────────────────────────────────────────────────── */
+/* ─── Helpers ─────────────────────────────────────────────────────────── */
 function slugify(name) {
     return name.toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -36,12 +37,17 @@ function auth(req, res, next) {
     }
 }
 
-async function getMonth() {
+function getMonth() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function getToday() {
+    return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+}
+
 async function anthropic(body) {
+    if (!ANTHROPIC_KEY) throw new Error('ANTHROPIC_API_KEY não configurada no servidor');
     const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -51,64 +57,142 @@ async function anthropic(body) {
         },
         body: JSON.stringify(body),
     });
+    if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `Anthropic API error ${r.status}`);
+    }
     return r.json();
 }
 
-/* ─── AUTH ─────────────────────────────────────────────────────────── */
-app.post('/api/auth/signup', async (req, res) => {
-    const { email, password, name, companyName } = req.body;
-    if (!email || !password || !companyName) return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
+/* ─── Research step: get real data before generation ─────────────────── */
+const OPENERS = [
+    'Comece com uma pergunta provocativa que desafia uma crença comum',
+    'Comece com um dado estatístico surpreendente e específico',
+    'Comece com uma afirmação polêmica ou contra-intuitiva',
+    'Comece com uma analogia forte e inesperada',
+    'Comece com um cenário hipotético impactante',
+    'Comece com uma comparação de antes/depois com números',
+    'Comece com uma verdade desconfortável do setor',
+    'Comece com uma promessa concreta e mensurável',
+];
 
-    const existing = await db`SELECT id FROM users WHERE email = ${email}`;
-    if (existing.length) return res.status(409).json({ error: 'Email já cadastrado' });
+async function researchTopic(topic, segment, tags) {
+    try {
+        const result = await anthropic({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 500,
+            temperature: 1,
+            messages: [{
+                role: 'user',
+                content: `Forneça 4 dados estatísticos reais e específicos sobre "${topic}" no contexto de "${segment}" no Brasil.
+Use apenas dados que você tem alta confiança que são reais e verificáveis.
+Inclua percentuais, números concretos ou comparações mensuráveis.
+Contexto adicional: ${tags?.slice(0, 5).join(', ') || topic}
 
-    const hash = await bcrypt.hash(password, 10);
-
-    // Generate unique slug
-    let baseSlug = slugify(companyName);
-    let slug = baseSlug;
-    let suffix = 1;
-    while (true) {
-        const taken = await db`SELECT id FROM tenants WHERE slug = ${slug}`;
-        if (!taken.length) break;
-        slug = `${baseSlug}-${suffix++}`;
+Retorne APENAS a lista, sem introdução, sem fonte, sem explicação:
+- [dado 1 com número específico]
+- [dado 2 com número específico]
+- [dado 3 com número específico]
+- [dado 4 com número específico]`,
+            }],
+        });
+        const text = result.content?.find(c => c.type === 'text')?.text || '';
+        return text.trim();
+    } catch {
+        return ''; // Não bloqueia a geração
     }
+}
 
-    const tenantId = randomUUID();
-    const userId = randomUUID();
+/* ─── AUTH ────────────────────────────────────────────────────────────── */
+app.post('/api/auth/signup', async (req, res) => {
+    try {
+        const { email, password, name, companyName } = req.body;
+        if (!email || !password || !companyName)
+            return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
+        if (password.length < 6)
+            return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
 
-    await db`INSERT INTO tenants (id, slug, name) VALUES (${tenantId}, ${slug}, ${companyName})`;
-    await db`INSERT INTO users (id, tenant_id, email, password_hash, name, role) VALUES (${userId}, ${tenantId}, ${email}, ${hash}, ${name || email.split('@')[0]}, 'owner')`;
+        const existing = await db`SELECT id FROM users WHERE email = ${email.toLowerCase()}`;
+        if (existing.length) return res.status(409).json({ error: 'Email já cadastrado' });
 
-    const token = jwt.sign({ userId, tenantId, tenantSlug: slug, role: 'owner', email }, JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, user: { id: userId, email, name, role: 'owner' }, tenant: { id: tenantId, slug, name: companyName } });
+        const hash = await bcrypt.hash(password, 10);
+
+        let baseSlug = slugify(companyName);
+        let slug = baseSlug, suffix = 1;
+        while (true) {
+            const taken = await db`SELECT id FROM tenants WHERE slug = ${slug}`;
+            if (!taken.length) break;
+            slug = `${baseSlug}-${suffix++}`;
+        }
+
+        const tenantId = randomUUID(), userId = randomUUID();
+        await db`INSERT INTO tenants (id, slug, name) VALUES (${tenantId}, ${slug}, ${companyName})`;
+        await db`INSERT INTO users (id, tenant_id, email, password_hash, name, role)
+                 VALUES (${userId}, ${tenantId}, ${email.toLowerCase()}, ${hash},
+                         ${name || email.split('@')[0]}, 'owner')`;
+
+        const token = jwt.sign(
+            { userId, tenantId, tenantSlug: slug, role: 'owner', email: email.toLowerCase() },
+            JWT_SECRET, { expiresIn: '30d' }
+        );
+        res.json({ token, user: { id: userId, email: email.toLowerCase(), name, role: 'owner' }, tenant: { id: tenantId, slug, name: companyName } });
+    } catch (err) {
+        console.error('Signup error:', err);
+        res.status(500).json({ error: err.message || 'Erro interno' });
+    }
 });
 
 app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email e senha obrigatórios' });
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) return res.status(400).json({ error: 'Email e senha obrigatórios' });
 
-    const rows = await db`SELECT u.*, t.slug as tenant_slug, t.name as tenant_name, t.brand_config FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.email = ${email}`;
-    if (!rows.length) return res.status(401).json({ error: 'Email ou senha inválidos' });
+        const rows = await db`
+            SELECT u.*, t.slug as tenant_slug, t.name as tenant_name,
+                   t.description, t.segment, t.target_audience, t.tone,
+                   t.default_cta, t.platforms, t.tags, t.brand_config, t.logo_url,
+                   t.plan, t.trial_ends_at
+            FROM users u
+            JOIN tenants t ON u.tenant_id = t.id
+            WHERE u.email = ${email.toLowerCase()}`;
 
-    const user = rows[0];
-    const ok = await bcrypt.compare(password, user.password_hash);
-    if (!ok) return res.status(401).json({ error: 'Email ou senha inválidos' });
+        if (!rows.length) return res.status(401).json({ error: 'Email ou senha inválidos' });
+        const user = rows[0];
+        const ok = await bcrypt.compare(password, user.password_hash);
+        if (!ok) return res.status(401).json({ error: 'Email ou senha inválidos' });
 
-    const token = jwt.sign({ userId: user.id, tenantId: user.tenant_id, tenantSlug: user.tenant_slug, role: user.role, email }, JWT_SECRET, { expiresIn: '30d' });
-    res.json({
-        token,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role },
-        tenant: { id: user.tenant_id, slug: user.tenant_slug, name: user.tenant_name, brand_config: user.brand_config },
-    });
+        const token = jwt.sign(
+            { userId: user.id, tenantId: user.tenant_id, tenantSlug: user.tenant_slug, role: user.role, email: user.email },
+            JWT_SECRET, { expiresIn: '30d' }
+        );
+        res.json({
+            token,
+            user: { id: user.id, email: user.email, name: user.name, role: user.role },
+            tenant: {
+                id: user.tenant_id, slug: user.tenant_slug, name: user.tenant_name,
+                description: user.description, segment: user.segment,
+                target_audience: user.target_audience, tone: user.tone,
+                default_cta: user.default_cta, platforms: user.platforms,
+                tags: user.tags, brand_config: user.brand_config, logo_url: user.logo_url,
+                plan: user.plan, trial_ends_at: user.trial_ends_at,
+            },
+        });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ error: err.message || 'Erro interno' });
+    }
 });
 
 app.get('/api/auth/me', auth, async (req, res) => {
-    const rows = await db`SELECT u.id, u.email, u.name, u.role,
-        t.id as tid, t.slug, t.name as tname, t.description, t.segment, t.target_audience,
-        t.tone, t.default_cta, t.platforms, t.tags, t.brand_config, t.logo_url,
-        t.plan, t.trial_ends_at
-        FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.id = ${req.user.userId}`;
+    const rows = await db`
+        SELECT u.id, u.email, u.name, u.role,
+               t.id as tid, t.slug, t.name as tname,
+               t.description, t.segment, t.target_audience,
+               t.tone, t.default_cta, t.platforms, t.tags,
+               t.brand_config, t.logo_url, t.plan, t.trial_ends_at
+        FROM users u
+        JOIN tenants t ON u.tenant_id = t.id
+        WHERE u.id = ${req.user.userId}`;
     if (!rows.length) return res.status(404).json({ error: 'Usuário não encontrado' });
     const r = rows[0];
     res.json({
@@ -124,13 +208,12 @@ app.get('/api/auth/me', auth, async (req, res) => {
     });
 });
 
-/* ─── TENANTS ──────────────────────────────────────────────────────── */
+/* ─── TENANTS ─────────────────────────────────────────────────────────── */
 app.get('/api/tenants/:slug', auth, async (req, res) => {
     const rows = await db`SELECT * FROM tenants WHERE slug = ${req.params.slug}`;
     if (!rows.length) return res.status(404).json({ error: 'Workspace não encontrado' });
-    const t = rows[0];
-    if (t.id !== req.user.tenantId) return res.status(403).json({ error: 'Acesso negado' });
-    res.json(t);
+    if (rows[0].id !== req.user.tenantId) return res.status(403).json({ error: 'Acesso negado' });
+    res.json(rows[0]);
 });
 
 app.patch('/api/tenants/:slug', auth, async (req, res) => {
@@ -138,114 +221,182 @@ app.patch('/api/tenants/:slug', auth, async (req, res) => {
     const rows = await db`SELECT id FROM tenants WHERE slug = ${req.params.slug}`;
     if (!rows.length || rows[0].id !== req.user.tenantId) return res.status(403).json({ error: 'Acesso negado' });
 
-    const allowed = ['name', 'description', 'segment', 'target_audience', 'tone', 'default_cta', 'platforms', 'tags', 'brand_config', 'logo_url'];
-    const updates = Object.fromEntries(Object.entries(req.body).filter(([k]) => allowed.includes(k)));
-    if (!Object.keys(updates).length) return res.status(400).json({ error: 'Nenhum campo para atualizar' });
-
-    const { name, description, segment, target_audience, tone, default_cta, platforms, tags, brand_config, logo_url } = updates;
+    const { name, description, segment, target_audience, tone, default_cta, platforms, tags, brand_config, logo_url } = req.body;
 
     await db`UPDATE tenants SET
-        name = COALESCE(${name ?? null}, name),
-        description = COALESCE(${description ?? null}, description),
-        segment = COALESCE(${segment ?? null}, segment),
+        name            = COALESCE(${name ?? null}, name),
+        description     = COALESCE(${description ?? null}, description),
+        segment         = COALESCE(${segment ?? null}, segment),
         target_audience = COALESCE(${target_audience ?? null}, target_audience),
-        tone = COALESCE(${tone ?? null}, tone),
-        default_cta = COALESCE(${default_cta ?? null}, default_cta),
-        platforms = COALESCE(${platforms ? JSON.stringify(platforms) : null}::text[], platforms),
-        tags = COALESCE(${tags ? JSON.stringify(tags) : null}::text[], tags),
-        brand_config = COALESCE(${brand_config ? JSON.stringify(brand_config) : null}::jsonb, brand_config),
-        logo_url = COALESCE(${logo_url ?? null}, logo_url)
+        tone            = COALESCE(${tone ?? null}, tone),
+        default_cta     = COALESCE(${default_cta ?? null}, default_cta),
+        platforms       = COALESCE(${platforms ? JSON.stringify(platforms) : null}::text[], platforms),
+        tags            = COALESCE(${tags ? JSON.stringify(tags) : null}::text[], tags),
+        brand_config    = COALESCE(${brand_config ? JSON.stringify(brand_config) : null}::jsonb, brand_config),
+        logo_url        = COALESCE(${logo_url ?? null}, logo_url)
     WHERE id = ${req.user.tenantId}`;
 
     const updated = await db`SELECT * FROM tenants WHERE id = ${req.user.tenantId}`;
     res.json(updated[0]);
 });
 
-/* ─── ONBOARDING — save step ───────────────────────────────────────── */
+/* ─── ONBOARDING ─────────────────────────────────────────────────────── */
 app.post('/api/onboarding/step', auth, async (req, res) => {
     if (req.user.role !== 'owner') return res.status(403).json({ error: 'Apenas o owner pode configurar o workspace' });
     const { name, description, segment, target_audience, tone, default_cta, platforms, tags, brand_config, logo_url } = req.body;
 
     await db`UPDATE tenants SET
-        name = COALESCE(${name ?? null}, name),
-        description = COALESCE(${description ?? null}, description),
-        segment = COALESCE(${segment ?? null}, segment),
+        name            = COALESCE(${name ?? null}, name),
+        description     = COALESCE(${description ?? null}, description),
+        segment         = COALESCE(${segment ?? null}, segment),
         target_audience = COALESCE(${target_audience ?? null}, target_audience),
-        tone = COALESCE(${tone ?? null}, tone),
-        default_cta = COALESCE(${default_cta ?? null}, default_cta),
-        platforms = COALESCE(${platforms ? JSON.stringify(platforms) : null}::text[], platforms),
-        tags = COALESCE(${tags ? JSON.stringify(tags) : null}::text[], tags),
-        brand_config = CASE WHEN ${brand_config ? JSON.stringify(brand_config) : null}::jsonb IS NOT NULL
+        tone            = COALESCE(${tone ?? null}, tone),
+        default_cta     = COALESCE(${default_cta ?? null}, default_cta),
+        platforms       = COALESCE(${platforms ? JSON.stringify(platforms) : null}::text[], platforms),
+        tags            = COALESCE(${tags ? JSON.stringify(tags) : null}::text[], tags),
+        brand_config    = CASE
+            WHEN ${brand_config ? JSON.stringify(brand_config) : null}::jsonb IS NOT NULL
             THEN brand_config || ${brand_config ? JSON.stringify(brand_config) : '{}'}::jsonb
             ELSE brand_config END,
-        logo_url = COALESCE(${logo_url ?? null}, logo_url)
+        logo_url        = COALESCE(${logo_url ?? null}, logo_url)
     WHERE id = ${req.user.tenantId}`;
 
     res.json({ ok: true });
 });
 
-/* ─── POSTS ────────────────────────────────────────────────────────── */
+/* ─── POSTS ───────────────────────────────────────────────────────────── */
 app.post('/api/posts/generate', auth, async (req, res) => {
-    // Check usage limit
-    const month = await getMonth();
-    const usageRows = await db`SELECT posts_generated FROM usage WHERE tenant_id = ${req.user.tenantId} AND month = ${month}`;
-    const used = usageRows[0]?.posts_generated ?? 0;
+    try {
+        // 1. Check daily limit (3/day per user, resets at 00:00)
+        const today = getToday();
+        const dailyRows = await db`SELECT posts_generated FROM daily_usage WHERE user_id = ${req.user.userId} AND date = ${today}`;
+        const dailyUsed = dailyRows[0]?.posts_generated ?? 0;
 
-    const tenantRows = await db`SELECT plan FROM tenants WHERE id = ${req.user.tenantId}`;
-    const plan = tenantRows[0]?.plan ?? 'trial';
-    const limit = PLANS[plan] ?? 10;
+        if (dailyUsed >= DAILY_LIMIT) {
+            return res.status(429).json({
+                error: `Limite diário atingido. Você pode criar até ${DAILY_LIMIT} posts por dia. O limite reinicia à meia-noite.`,
+                limitReached: true,
+                dailyUsed,
+                dailyLimit: DAILY_LIMIT,
+            });
+        }
 
-    if (used >= limit) {
-        return res.status(429).json({ error: `Limite do plano ${plan} atingido (${limit} gerações/mês). Faça upgrade para continuar.` });
+        // 2. Research step — get real data before generating
+        const { messages, model, max_tokens, temperature, systemPrompt, topic, templateStyle } = req.body;
+        const tenantRows = await db`SELECT segment, tags FROM tenants WHERE id = ${req.user.tenantId}`;
+        const { segment, tags } = tenantRows[0] || {};
+
+        const researchData = await researchTopic(topic || 'conteúdo de marketing', segment, tags);
+
+        // 3. Pick a random opener style for variety
+        const opener = OPENERS[Math.floor(Math.random() * OPENERS.length)];
+
+        // 4. Inject research + variety instructions into the user message
+        const enrichedMessages = messages.map((m, idx) => {
+            if (m.role === 'user' && idx === messages.length - 1) {
+                let extra = `\n\nESTILO DE ABERTURA: ${opener}`;
+                if (researchData) {
+                    extra += `\n\nDADOS REAIS PARA USAR NO CONTEÚDO (incorpore naturalmente, sem citar a fonte):\n${researchData}`;
+                }
+                if (templateStyle && templateStyle !== 'classic') {
+                    const templateInstructions = {
+                        impact:    'TEMPLATE VISUAL: IMPACTO — use stat numérico dominante (campo stat obrigatório), headline curto e direto, subheadline mínimo.',
+                        contrast:  'TEMPLATE VISUAL: CONTRASTE — estruture como problema vs solução, use items[] para listar 2-3 contrastes claros.',
+                        manifesto: 'TEMPLATE VISUAL: MANIFESTO — headline como declaração de posicionamento forte, sem stat, subheadline expande a tese.',
+                    };
+                    extra += `\n\n${templateInstructions[templateStyle] || ''}`;
+                }
+                return { ...m, content: m.content + extra };
+            }
+            return m;
+        });
+
+        // 5. Generate
+        const result = await anthropic({
+            model: model || 'claude-sonnet-4-20250514',
+            max_tokens: max_tokens || 2500,
+            temperature: temperature ?? 1,
+            system: systemPrompt,
+            messages: enrichedMessages,
+        });
+
+        if (result.error) return res.status(500).json({ error: result.error.message || 'Erro na API da IA' });
+
+        // 6. Increment daily + monthly usage
+        await db`INSERT INTO daily_usage (user_id, date, posts_generated)
+                 VALUES (${req.user.userId}, ${today}, 1)
+                 ON CONFLICT (user_id, date)
+                 DO UPDATE SET posts_generated = daily_usage.posts_generated + 1`;
+
+        const month = getMonth();
+        await db`INSERT INTO usage (tenant_id, month, posts_generated) VALUES (${req.user.tenantId}, ${month}, 1)
+                 ON CONFLICT (tenant_id, month) DO UPDATE SET posts_generated = usage.posts_generated + 1`;
+
+        res.json(result);
+    } catch (err) {
+        console.error('Generate error:', err);
+        res.status(500).json({ error: err.message || 'Erro ao gerar conteúdo' });
     }
-
-    const { messages, model, max_tokens, temperature, systemPrompt } = req.body;
-    const result = await anthropic({ model: model || 'claude-sonnet-4-20250514', max_tokens: max_tokens || 2500, temperature: temperature || 1, system: systemPrompt, messages });
-
-    if (result.error) return res.status(500).json({ error: result.error.message || 'Erro na API da IA' });
-
-    // Increment usage
-    await db`INSERT INTO usage (tenant_id, month, posts_generated) VALUES (${req.user.tenantId}, ${month}, 1)
-        ON CONFLICT (tenant_id, month) DO UPDATE SET posts_generated = usage.posts_generated + 1`;
-
-    res.json(result);
 });
 
 app.post('/api/posts/save', auth, async (req, res) => {
-    const { format, framework, topic, slides, caption, hashtags } = req.body;
-    const id = randomUUID();
-    await db`INSERT INTO posts (id, tenant_id, user_id, format, framework, topic, slides, caption, hashtags)
-        VALUES (${id}, ${req.user.tenantId}, ${req.user.userId}, ${format}, ${framework ?? null}, ${topic ?? null},
-        ${JSON.stringify(slides)}::jsonb, ${caption ?? null}, ${hashtags ?? null})`;
-    res.json({ id });
+    try {
+        const { format, framework, topic, template_style, slides, caption, hashtags } = req.body;
+        const id = randomUUID();
+        await db`INSERT INTO posts (id, tenant_id, user_id, format, framework, topic, template_style, slides, caption, hashtags)
+                 VALUES (${id}, ${req.user.tenantId}, ${req.user.userId},
+                         ${format}, ${framework ?? null}, ${topic ?? null}, ${template_style ?? 'classic'},
+                         ${JSON.stringify(slides)}::jsonb, ${caption ?? null}, ${hashtags ?? null})`;
+        res.json({ id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/api/posts', auth, async (req, res) => {
-    const rows = await db`SELECT id, format, framework, topic, caption, hashtags, slides, created_at FROM posts
-        WHERE tenant_id = ${req.user.tenantId} ORDER BY created_at DESC LIMIT 20`;
+    const rows = await db`
+        SELECT id, format, framework, topic, template_style, caption, hashtags, slides, created_at
+        FROM posts
+        WHERE tenant_id = ${req.user.tenantId}
+        ORDER BY created_at DESC LIMIT 20`;
     res.json(rows);
 });
 
-/* ─── USAGE ────────────────────────────────────────────────────────── */
+/* ─── USAGE ───────────────────────────────────────────────────────────── */
 app.get('/api/usage', auth, async (req, res) => {
-    const month = await getMonth();
-    const rows = await db`SELECT posts_generated FROM usage WHERE tenant_id = ${req.user.tenantId} AND month = ${month}`;
-    const tenantRows = await db`SELECT plan FROM tenants WHERE id = ${req.user.tenantId}`;
-    const plan = tenantRows[0]?.plan ?? 'trial';
-    res.json({ used: rows[0]?.posts_generated ?? 0, limit: PLANS[plan] ?? 10, plan });
+    const month = getMonth();
+    const today = getToday();
+
+    const [monthRows, planRows, dailyRows] = await Promise.all([
+        db`SELECT posts_generated FROM usage WHERE tenant_id = ${req.user.tenantId} AND month = ${month}`,
+        db`SELECT plan FROM tenants WHERE id = ${req.user.tenantId}`,
+        db`SELECT posts_generated FROM daily_usage WHERE user_id = ${req.user.userId} AND date = ${today}`,
+    ]);
+
+    const plan      = planRows[0]?.plan ?? 'trial';
+    const monthUsed = monthRows[0]?.posts_generated ?? 0;
+    const dailyUsed = dailyRows[0]?.posts_generated ?? 0;
+
+    res.json({
+        used:       monthUsed,
+        limit:      PLANS[plan] ?? 10,
+        plan,
+        dailyUsed,
+        dailyLimit: DAILY_LIMIT,
+    });
 });
 
-/* ─── PALETTE SUGGESTION ───────────────────────────────────────────── */
+/* ─── PALETTE SUGGESTION ─────────────────────────────────────────────── */
 app.post('/api/palette/suggest', auth, async (req, res) => {
     const { name, segment, description, tone } = req.body;
-
-    const result = await anthropic({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
-        temperature: 1,
-        messages: [{
-            role: 'user',
-            content: `Você é um designer de marca especialista. Sugira 3 paletas de cores premium para esta empresa:
+    try {
+        const result = await anthropic({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 800,
+            temperature: 1,
+            messages: [{
+                role: 'user',
+                content: `Você é um designer de marca especialista. Sugira 3 paletas de cores premium para esta empresa:
 
 Nome: ${name}
 Segmento: ${segment}
@@ -253,26 +404,13 @@ Descrição: ${description}
 Tom: ${tone}
 
 Responda APENAS JSON válido sem markdown:
-{"palettes":[{"name":"Nome Criativo","rationale":"Frase curta explicando a escolha","primary":"#hex","accent":"#hex","bgDark":"#hex","bgLight":"#hex"}]}
+{"palettes":[{"name":"Nome Criativo","rationale":"Frase curta","primary":"#hex","accent":"#hex","bgDark":"#hex","bgLight":"#hex"}]}
 
-Regras:
-- bgDark deve ser muito escuro (luminosidade < 15%)
-- bgLight deve ser claro/branco (luminosidade > 90%)
-- primary é a cor principal da marca
-- accent é uma cor de destaque complementar
-- As 3 paletas devem ser distintas entre si
-- Adapte ao segmento e tom`
-        }]
-    });
+Regras: bgDark muito escuro (<15% luminosidade), bgLight claro (>90%), as 3 paletas distintas.`,
+            }],
+        });
 
-    if (result.error) {
-        // Fallback palettes by segment
-        const fallback = getFallbackPalettes(segment);
-        return res.json({ palettes: fallback });
-    }
-
-    const txt = result.content?.find(c => c.type === 'text')?.text || '{}';
-    try {
+        const txt = result.content?.find(c => c.type === 'text')?.text || '{}';
         const parsed = JSON.parse(txt.replace(/```json\n?|\n?```/g, '').trim());
         res.json(parsed);
     } catch {
@@ -281,30 +419,18 @@ Regras:
 });
 
 function getFallbackPalettes(segment) {
-    const map = {
-        'Tecnologia/SaaS': [
-            { name: 'Oceano Profundo', rationale: 'Transmite confiança e inovação', primary: '#0057B7', accent: '#4D9AFF', bgDark: '#040C1A', bgLight: '#F4F6F9' },
-            { name: 'Índigo Tech', rationale: 'Moderno e sofisticado', primary: '#6366F1', accent: '#A78BFA', bgDark: '#0A0A1A', bgLight: '#F8F7FF' },
-            { name: 'Verde Digital', rationale: 'Crescimento e progresso', primary: '#059669', accent: '#34D399', bgDark: '#041A10', bgLight: '#F0FDF4' },
-        ],
-        'Saúde': [
-            { name: 'Azul Clínico', rationale: 'Transmite saúde e confiança', primary: '#0EA5E9', accent: '#38BDF8', bgDark: '#040F1A', bgLight: '#F0F9FF' },
-            { name: 'Verde Vitalidade', rationale: 'Frescor e bem-estar', primary: '#16A34A', accent: '#4ADE80', bgDark: '#041A08', bgLight: '#F0FFF4' },
-            { name: 'Violeta Moderno', rationale: 'Inovação na medicina', primary: '#7C3AED', accent: '#A78BFA', bgDark: '#0A041A', bgLight: '#FAF5FF' },
-        ],
-        default: [
-            { name: 'Azul Clássico', rationale: 'Confiança e profissionalismo', primary: '#0057B7', accent: '#4D9AFF', bgDark: '#040C1A', bgLight: '#F4F6F9' },
-            { name: 'Âmbar Executivo', rationale: 'Energia e resultado', primary: '#D97706', accent: '#FBBF24', bgDark: '#140C02', bgLight: '#FFFBF0' },
-            { name: 'Violeta Premium', rationale: 'Sofisticação e criatividade', primary: '#7C3AED', accent: '#A78BFA', bgDark: '#0A041A', bgLight: '#FAF5FF' },
-        ],
-    };
-    return map[segment] || map.default;
+    const defaults = [
+        { name: 'Oceano Profundo', rationale: 'Confiança e inovação', primary: '#0057B7', accent: '#4D9AFF', bgDark: '#040C1A', bgLight: '#F4F6F9' },
+        { name: 'Índigo Premium',  rationale: 'Sofisticação criativa', primary: '#6366F1', accent: '#A78BFA', bgDark: '#0A0A1A', bgLight: '#F8F7FF' },
+        { name: 'Âmbar Executivo', rationale: 'Energia e resultado',   primary: '#D97706', accent: '#FBBF24', bgDark: '#140C02', bgLight: '#FFFBF0' },
+    ];
+    return defaults;
 }
 
-/* ─── START ────────────────────────────────────────────────────────── */
+/* ─── START ───────────────────────────────────────────────────────────── */
 if (!process.env.VERCEL) {
     const port = process.env.PORT || 3001;
-    app.listen(port, () => console.log(`🔥 API rodando em http://localhost:${port}`));
+    app.listen(port, () => console.log(`API running on http://localhost:${port}`));
 }
 
 export default app;
