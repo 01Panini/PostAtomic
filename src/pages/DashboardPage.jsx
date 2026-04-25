@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { usePosts } from '../hooks/usePosts';
 import { useBrand } from '../contexts/BrandContext';
+import { useMobile } from '../hooks/useMobile';
 
 const FMT = { post: 'Post', carousel: 'Carrossel', story: 'Story' };
 
@@ -45,13 +46,17 @@ function PostCard({ post }) {
 
 export default function DashboardPage() {
     const { posts, loading, load } = usePosts();
+    const isMobile = useMobile();
     useEffect(() => { load(); }, [load]);
 
+    const minCardWidth = isMobile ? 140 : 160;
+    const pagePadding = isMobile ? '20px 16px 80px' : 32;
+
     return (
-        <div style={{ height: '100%', overflowY: 'auto', padding: 32, background: '#050505', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ height: '100%', overflowY: 'auto', padding: pagePadding, background: '#050505', fontFamily: 'Inter, sans-serif' }}>
             <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-                <div style={{ marginBottom: 32 }}>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4, color: '#FFFFFF', marginBottom: 4 }}>Histórico</h1>
+                <div style={{ marginBottom: isMobile ? 20 : 32 }}>
+                    <h1 style={{ fontSize: isMobile ? 20 : 22, fontWeight: 700, letterSpacing: -0.4, color: '#FFFFFF', marginBottom: 4 }}>Histórico</h1>
                     <p style={{ fontSize: 13, color: '#616161' }}>Seus últimos 20 posts gerados.</p>
                 </div>
 
@@ -70,7 +75,7 @@ export default function DashboardPage() {
                         </p>
                     </div>
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${minCardWidth}px, 1fr))`, gap: isMobile ? 10 : 12 }}>
                         {posts.map(p => <PostCard key={p.id} post={p} />)}
                     </div>
                 )}

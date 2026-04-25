@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import { ColorPicker } from '../components/ui/ColorPicker';
 import { TagInput } from '../components/ui/TagInput';
+import { useMobile } from '../hooks/useMobile';
 
 const S = {
     input: {
@@ -52,6 +53,7 @@ function Section({ title, children }) {
 
 export default function SettingsPage() {
     const { tenant, refreshTenant, user } = useAuth();
+    const isMobile = useMobile();
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState('');
@@ -107,10 +109,10 @@ export default function SettingsPage() {
     );
 
     return (
-        <div style={{ height: '100%', overflowY: 'auto', padding: 32, background: '#050505', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ height: '100%', overflowY: 'auto', padding: isMobile ? '20px 16px 80px' : 32, background: '#050505', fontFamily: 'Inter, sans-serif' }}>
             <div style={{ maxWidth: 640, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <div>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4, color: '#FFFFFF', marginBottom: 4 }}>Configurações</h1>
+                    <h1 style={{ fontSize: isMobile ? 20 : 22, fontWeight: 700, letterSpacing: -0.4, color: '#FFFFFF', marginBottom: 4 }}>Configurações</h1>
                     <p style={{ fontSize: 13, color: '#616161' }}>Edite a identidade e a marca do workspace.</p>
                 </div>
 
@@ -128,7 +130,7 @@ export default function SettingsPage() {
                 </Section>
 
                 <Section title="Cores da Marca">
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                         <ColorPicker label="Cor primária" value={primary} onChange={setPrimary} />
                         <ColorPicker label="Cor de destaque" value={accent} onChange={setAccent} />
                         <ColorPicker label="Fundo escuro" value={bgDark} onChange={setBgDark} />
@@ -140,16 +142,16 @@ export default function SettingsPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                         {modules.map((m, i) => (
                             <div key={m.key || i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#121212', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: 10 }}>
-                                <div style={{ flex: 1 }}>
-                                    <input style={{ ...S.input, marginBottom: 0 }} value={m.name} placeholder={`Módulo ${i + 1}`}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <input style={{ ...S.input }} value={m.name} placeholder={`Módulo ${i + 1}`}
                                         onChange={e => setModules(ms => ms.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
                                 </div>
-                                <div style={{ width: 110, flexShrink: 0 }}>
+                                <div style={{ width: isMobile ? 90 : 110, flexShrink: 0 }}>
                                     <ColorPicker label="" value={m.color}
                                         onChange={v => setModules(ms => ms.map((x, j) => j === i ? { ...x, color: v } : x))} />
                                 </div>
                                 <button onClick={() => setModules(ms => ms.filter((_, j) => j !== i))}
-                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#616161', fontSize: 18, padding: '0 4px', lineHeight: 1, transition: 'color 0.15s' }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#616161', fontSize: 18, padding: '0 4px', lineHeight: 1, transition: 'color 0.15s', flexShrink: 0 }}
                                     onMouseEnter={e => e.target.style.color = '#F87171'}
                                     onMouseLeave={e => e.target.style.color = '#616161'}>×</button>
                             </div>
@@ -166,7 +168,7 @@ export default function SettingsPage() {
                 </Section>
 
                 <Section title="Presença Digital">
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                         <Field label="Handle (@)" placeholder="@suaempresa" value={handle} onChange={e => setHandle(e.target.value)} />
                         <Field label="Domínio" placeholder="suaempresa.com" value={domain} onChange={e => setDomain(e.target.value)} />
                     </div>

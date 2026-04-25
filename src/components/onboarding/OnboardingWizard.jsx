@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../lib/api';
+import { useMobile } from '../../hooks/useMobile';
 import Step1Identity from './steps/Step1Identity';
 import Step2Audience from './steps/Step2Audience';
 import Step3Tags from './steps/Step3Tags';
@@ -51,6 +52,7 @@ export default function OnboardingWizard() {
         navigate('/workspace', { replace: true });
     };
 
+    const isMobile = useMobile();
     const progress = (step / (STEPS.length - 1)) * 100;
     const stepProps = { data, onNext: next, onBack: () => setStep(s => s - 1), saving };
 
@@ -73,38 +75,46 @@ export default function OnboardingWizard() {
                     </div>
 
                     {/* Step indicators */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        {STEPS.map((label, i) => (
-                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <div style={{
-                                    width: 22, height: 22, borderRadius: '50%',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: 10, fontWeight: 700,
-                                    background: i < step ? '#0CC981' : i === step ? 'rgba(12,201,129,0.12)' : 'rgba(255,255,255,0.04)',
-                                    color: i < step ? '#050505' : i === step ? '#0CC981' : '#616161',
-                                    border: i === step ? '1px solid rgba(12,201,129,0.4)' : '1px solid transparent',
-                                    transition: 'all 0.3s',
-                                }}>
-                                    {i < step ? '✓' : i + 1}
+                    {isMobile ? (
+                        /* Mobile: compact dots */
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                            {STEPS.map((_, i) => (
+                                <div key={i} style={{
+                                    borderRadius: 99, transition: 'all 0.3s',
+                                    width: i === step ? 18 : 6, height: 6,
+                                    background: i < step ? '#0CC981' : i === step ? '#0CC981' : 'rgba(255,255,255,0.15)',
+                                }} />
+                            ))}
+                        </div>
+                    ) : (
+                        /* Desktop: labeled steps */
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {STEPS.map((label, i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                    <div style={{
+                                        width: 22, height: 22, borderRadius: '50%',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: 10, fontWeight: 700,
+                                        background: i < step ? '#0CC981' : i === step ? 'rgba(12,201,129,0.12)' : 'rgba(255,255,255,0.04)',
+                                        color: i < step ? '#050505' : i === step ? '#0CC981' : '#616161',
+                                        border: i === step ? '1px solid rgba(12,201,129,0.4)' : '1px solid transparent',
+                                        transition: 'all 0.3s',
+                                    }}>
+                                        {i < step ? '✓' : i + 1}
+                                    </div>
+                                    <span style={{ fontSize: 11, fontWeight: 500, color: i === step ? '#FFFFFF' : '#616161' }}>{label}</span>
+                                    {i < STEPS.length - 1 && <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.08)' }} />}
                                 </div>
-                                <span style={{
-                                    fontSize: 11, fontWeight: 500,
-                                    color: i === step ? '#FFFFFF' : '#616161',
-                                    display: window.innerWidth < 768 ? 'none' : 'block',
-                                }}>{label}</span>
-                                {i < STEPS.length - 1 && (
-                                    <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.08)', display: window.innerWidth < 768 ? 'none' : 'block' }} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
 
                     <div style={{ fontSize: 11, color: '#616161', fontWeight: 600 }}>{step + 1} / {STEPS.length}</div>
                 </div>
             </div>
 
             {/* Content */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 100, paddingBottom: 48, paddingLeft: 16, paddingRight: 16 }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: isMobile ? 80 : 100, paddingBottom: isMobile ? 40 : 48, paddingLeft: 16, paddingRight: 16 }}>
                 <div style={{ width: '100%', maxWidth: 600, animation: 'fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
                     {step === 0 && <Step1Identity {...stepProps} />}
                     {step === 1 && <Step2Audience {...stepProps} />}

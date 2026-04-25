@@ -78,7 +78,7 @@ export default function AuthPage() {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ minHeight: '100dvh', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', fontFamily: 'Inter, sans-serif' }}>
             {/* Subtle aurora */}
             <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse at 50% 40%, rgba(12,201,129,0.06) 0%, transparent 60%)', pointerEvents: 'none' }} />
 
