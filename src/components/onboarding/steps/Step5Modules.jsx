@@ -13,15 +13,18 @@ const MODULE_SUGGESTIONS = {
 
 function ModuleRow({ mod, onChange, onRemove, index }) {
     return (
-        <div className="flex items-end gap-3 bg-white/[.02] border border-[#0D1325] rounded-xl p-4">
-            <div className="flex-1">
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: 12 }}>
+            <div style={{ flex: 1 }}>
                 <Input label={`Módulo ${index + 1}`} placeholder="Nome do produto/área"
                     value={mod.name} onChange={(e) => onChange({ ...mod, name: e.target.value })} />
             </div>
-            <div className="w-36 flex-shrink-0">
+            <div style={{ width: 120, flexShrink: 0 }}>
                 <ColorPicker label="Cor" value={mod.color} onChange={(v) => onChange({ ...mod, color: v })} />
             </div>
-            <button onClick={onRemove} className="mb-0.5 text-text-3 hover:text-red-400 transition-colors text-lg leading-none">×</button>
+            <button onClick={onRemove}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#616161', fontSize: 18, padding: '0 4px', lineHeight: 1, transition: 'color 0.15s', fontFamily: 'Inter, sans-serif' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
+                onMouseLeave={e => e.currentTarget.style.color = '#616161'}>×</button>
         </div>
     );
 }
@@ -37,7 +40,7 @@ export default function Step5Modules({ data, onNext, onBack, saving }) {
 
     const addModule = () => {
         if (modules.length >= 5) return;
-        setModules(m => [...m, { key: `mod_${Date.now()}`, name: '', color: '#4D9AFF' }]);
+        setModules(m => [...m, { key: `mod_${Date.now()}`, name: '', color: '#0CC981' }]);
     };
 
     const submit = () => {
@@ -54,37 +57,40 @@ export default function Step5Modules({ data, onNext, onBack, saving }) {
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, fontFamily: 'Inter, sans-serif' }}>
             <div>
-                <h1 className="text-3xl font-black tracking-tight mb-2">Módulos e Marca</h1>
-                <p className="text-text-2">Produtos ou áreas da empresa que aparecerão nos posts como categorias.</p>
+                <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: '#FFFFFF', marginBottom: 8 }}>Módulos e Marca</h1>
+                <p style={{ fontSize: 14, color: '#A8A8A8' }}>Produtos ou áreas da empresa que aparecerão nos posts como categorias.</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {modules.map((m, i) => (
                     <ModuleRow key={m.key || i} mod={m} index={i}
                         onChange={(v) => setModules(ms => ms.map((x, j) => j === i ? v : x))}
                         onRemove={() => setModules(ms => ms.filter((_, j) => j !== i))} />
                 ))}
                 {modules.length < 5 && (
-                    <button onClick={addModule} className="w-full border border-dashed border-[#162035] rounded-xl py-3 text-sm text-text-3 hover:border-blue/40 hover:text-blue-light transition-colors">
+                    <button onClick={addModule}
+                        style={{ background: 'none', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 0', fontSize: 12, color: '#616161', cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s', width: '100%' }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(12,201,129,0.35)'; e.currentTarget.style.color = '#0CC981'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#616161'; }}>
                         + Adicionar módulo
                     </button>
                 )}
-                {error && <p className="text-xs text-red-400">{error}</p>}
+                {error && <p style={{ fontSize: 12, color: '#F87171' }}>{error}</p>}
             </div>
 
-            <div className="flex flex-col gap-4 border-t border-[#0D1325] pt-6">
-                <h2 className="text-sm font-bold text-text-1">Presença Digital</h2>
-                <div className="grid grid-cols-2 gap-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 24 }}>
+                <h2 style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF' }}>Presença Digital</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                     <Input label="Handle (@)" placeholder="@suaempresa" value={handle} onChange={(e) => setHandle(e.target.value)} />
                     <Input label="Domínio" placeholder="suaempresa.com.br" value={domain} onChange={(e) => setDomain(e.target.value)} />
                 </div>
             </div>
 
-            <div className="flex gap-3">
-                <Button variant="secondary" size="md" onClick={onBack} className="w-28">← Voltar</Button>
-                <Button variant="primary" className="flex-1" onClick={submit} loading={saving}>Próximo →</Button>
+            <div style={{ display: 'flex', gap: 10 }}>
+                <Button variant="secondary" size="md" onClick={onBack} style={{ width: 100 }}>← Voltar</Button>
+                <Button variant="primary" onClick={submit} loading={saving} style={{ flex: 1 }}>Próximo →</Button>
             </div>
         </div>
     );

@@ -23,6 +23,15 @@ const PLATFORMS = [
     { value: 'linkedin', label: 'LinkedIn', icon: <LIIcon /> },
 ];
 
+const S = {
+    sectionLabel: {
+        fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+        color: '#616161', fontFamily: 'Inter, sans-serif',
+    },
+    errorText: { fontSize: 12, color: '#F87171', fontFamily: 'Inter, sans-serif' },
+    italic: { fontSize: 12, color: '#A8A8A8', fontStyle: 'italic', borderLeft: '2px solid rgba(12,201,129,0.25)', paddingLeft: 10, marginTop: 6, fontFamily: 'Inter, sans-serif' },
+};
+
 export default function Step2Audience({ data, onNext, onBack, saving }) {
     const [form, setForm] = useState({
         target_audience: data.target_audience || '',
@@ -51,56 +60,57 @@ export default function Step2Audience({ data, onNext, onBack, saving }) {
     const submit = () => { if (validate()) onNext(form); };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, fontFamily: 'Inter, sans-serif' }}>
             <div>
-                <h1 className="text-3xl font-black tracking-tight mb-2">Público e Tom</h1>
-                <p className="text-text-2">Quem você quer atingir e como quer soar.</p>
+                <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: '#FFFFFF', marginBottom: 8 }}>Público e Tom</h1>
+                <p style={{ fontSize: 14, color: '#A8A8A8' }}>Quem você quer atingir e como quer soar.</p>
             </div>
 
-            <div className="flex flex-col gap-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 <Input label="Público-alvo" as="textarea" rows={2}
                     placeholder="Ex: diretores de RH em empresas de 50-200 funcionários"
                     value={form.target_audience} onChange={(e) => setForm(f => ({ ...f, target_audience: e.target.value }))}
                     error={errors.target_audience} />
 
-                <div className="flex flex-col gap-2">
-                    <span className="text-[10px] font-extrabold tracking-[.12em] uppercase text-text-3">Tom de Voz</span>
-                    <div className="grid grid-cols-2 gap-3">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <span style={S.sectionLabel}>Tom de Voz</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                         {TONE_OPTIONS.map((t) => (
                             <Card key={t.value} selected={form.tone === t.value} onClick={() => setForm(f => ({ ...f, tone: t.value }))}>
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-sm font-bold text-text-1">{t.label}</span>
-                                    <span className="text-xs text-text-3">{t.desc}</span>
-                                    <span className="text-xs text-text-2 italic border-l-2 border-blue/30 pl-2 mt-1">{t.sample}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                    <span style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF' }}>{t.label}</span>
+                                    <span style={{ fontSize: 11, color: '#616161' }}>{t.desc}</span>
+                                    <span style={S.italic}>{t.sample}</span>
                                 </div>
                             </Card>
                         ))}
                     </div>
-                    {errors.tone && <p className="text-xs text-red-400">{errors.tone}</p>}
+                    {errors.tone && <p style={S.errorText}>{errors.tone}</p>}
                 </div>
 
                 <Input label="CTA padrão" placeholder="Ex: Agende uma demonstração gratuita"
                     value={form.default_cta} onChange={(e) => setForm(f => ({ ...f, default_cta: e.target.value }))}
                     error={errors.default_cta} />
 
-                <div className="flex flex-col gap-2">
-                    <span className="text-[10px] font-extrabold tracking-[.12em] uppercase text-text-3">Plataformas Alvo</span>
-                    <div className="flex gap-3">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <span style={S.sectionLabel}>Plataformas Alvo</span>
+                    <div style={{ display: 'flex', gap: 10 }}>
                         {PLATFORMS.map((p) => (
-                            <Card key={p.value} selected={form.platforms.includes(p.value)} onClick={() => togglePlatform(p.value)}
-                                className="flex-1 flex items-center gap-3">
-                                <span className="text-2xl">{p.icon}</span>
-                                <span className="text-sm font-bold">{p.label}</span>
+                            <Card key={p.value} selected={form.platforms.includes(p.value)}
+                                onClick={() => togglePlatform(p.value)}
+                                style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <span style={{ color: '#A8A8A8' }}>{p.icon}</span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF' }}>{p.label}</span>
                             </Card>
                         ))}
                     </div>
-                    {errors.platforms && <p className="text-xs text-red-400">{errors.platforms}</p>}
+                    {errors.platforms && <p style={S.errorText}>{errors.platforms}</p>}
                 </div>
             </div>
 
-            <div className="flex gap-3">
-                <Button variant="secondary" size="md" onClick={onBack} className="w-28">← Voltar</Button>
-                <Button variant="primary" className="flex-1" onClick={submit} loading={saving}>Próximo →</Button>
+            <div style={{ display: 'flex', gap: 10 }}>
+                <Button variant="secondary" size="md" onClick={onBack} style={{ width: 100 }}>← Voltar</Button>
+                <Button variant="primary" onClick={submit} loading={saving} style={{ flex: 1 }}>Próximo →</Button>
             </div>
         </div>
     );

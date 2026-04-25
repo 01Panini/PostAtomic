@@ -1,40 +1,74 @@
-export function Input({ label, error, className = '', as = 'input', ...props }) {
+const LABEL_STYLE = {
+    fontSize: 11,
+    fontWeight: 500,
+    color: '#616161',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    display: 'block',
+    marginBottom: 6,
+    fontFamily: 'Inter, sans-serif',
+};
+
+const INPUT_BASE = {
+    background: '#0F0F0F',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 8,
+    color: '#FFFFFF',
+    fontSize: 13,
+    padding: '9px 12px',
+    outline: 'none',
+    fontFamily: 'Inter, sans-serif',
+    width: '100%',
+    transition: 'border-color 0.15s',
+    resize: 'none',
+    boxSizing: 'border-box',
+};
+
+const INPUT_ERROR = {
+    borderColor: 'rgba(239,68,68,0.5)',
+};
+
+export function Input({ label, error, as = 'input', style: extraStyle = {}, className = '', ...props }) {
     const Tag = as;
     return (
-        <div className="flex flex-col gap-1.5">
-            {label && (
-                <label className="text-[10px] font-bold tracking-[.12em] uppercase text-[#4D6B8A]">
-                    {label}
-                </label>
-            )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
+            {label && <label style={LABEL_STYLE}>{label}</label>}
             <Tag
-                className={`w-full bg-[#03091A] border rounded-xl text-[#F0F6FF] text-sm px-3.5 py-3 outline-none transition-colors placeholder:text-[#2D4D7E] resize-none
-                    ${error ? 'border-[#EF4444]/60 focus:border-[#EF4444]' : 'border-[#1E3560] focus:border-[#2563EB]/60'}
-                    ${className}`}
+                style={{
+                    ...INPUT_BASE,
+                    ...(error ? INPUT_ERROR : {}),
+                    ...extraStyle,
+                }}
+                className={className}
                 {...props}
             />
-            {error && <p className="text-xs text-[#F87171]">{error}</p>}
+            {error && (
+                <p style={{ fontSize: 12, color: '#F87171', margin: 0, fontFamily: 'Inter, sans-serif' }}>{error}</p>
+            )}
         </div>
     );
 }
 
-export function Select({ label, error, className = '', children, ...props }) {
+export function Select({ label, error, style: extraStyle = {}, className = '', children, ...props }) {
     return (
-        <div className="flex flex-col gap-1.5">
-            {label && (
-                <label className="text-[10px] font-bold tracking-[.12em] uppercase text-[#4D6B8A]">
-                    {label}
-                </label>
-            )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
+            {label && <label style={LABEL_STYLE}>{label}</label>}
             <select
-                className={`w-full bg-[#03091A] border rounded-xl text-[#F0F6FF] text-sm px-3.5 py-3 outline-none transition-colors
-                    ${error ? 'border-[#EF4444]/60' : 'border-[#1E3560] focus:border-[#2563EB]/60'}
-                    ${className}`}
+                style={{
+                    ...INPUT_BASE,
+                    ...(error ? INPUT_ERROR : {}),
+                    ...extraStyle,
+                    appearance: 'none',
+                    cursor: 'pointer',
+                }}
+                className={className}
                 {...props}
             >
                 {children}
             </select>
-            {error && <p className="text-xs text-[#F87171]">{error}</p>}
+            {error && (
+                <p style={{ fontSize: 12, color: '#F87171', margin: 0, fontFamily: 'Inter, sans-serif' }}>{error}</p>
+            )}
         </div>
     );
 }

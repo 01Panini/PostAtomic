@@ -30,13 +30,13 @@ export default function Step1Identity({ data, onNext, saving }) {
     const submit = () => { if (validate()) onNext(form); };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, fontFamily: 'Inter, sans-serif' }}>
             <div>
-                <h1 className="text-3xl font-black tracking-tight mb-2">Identidade da Empresa</h1>
-                <p className="text-text-2">Vamos começar com o básico. Essas informações guiam toda a geração de conteúdo.</p>
+                <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: '#FFFFFF', marginBottom: 8 }}>Identidade da Empresa</h1>
+                <p style={{ fontSize: 14, color: '#A8A8A8' }}>Vamos começar com o básico. Essas informações guiam toda a geração de conteúdo.</p>
             </div>
 
-            <div className="flex flex-col gap-5">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <Input label="Nome da empresa" placeholder="Ex: Acme Corp" value={form.name} onChange={set('name')} error={errors.name} maxLength={60} />
 
                 <Select label="Segmento / Nicho" value={form.segment} onChange={set('segment')} error={errors.segment}>
@@ -44,9 +44,11 @@ export default function Step1Identity({ data, onNext, saving }) {
                     {SEGMENTS.map((s) => <option key={s} value={s}>{s}</option>)}
                 </Select>
 
-                <Input label="Descrição breve" placeholder="O que sua empresa faz em uma frase" as="textarea" rows={3}
-                    value={form.description} onChange={set('description')} error={errors.description} />
-                <p className="text-xs text-text-3 -mt-3">{form.description.length}/200 caracteres</p>
+                <div>
+                    <Input label="Descrição breve" placeholder="O que sua empresa faz em uma frase" as="textarea" rows={3}
+                        value={form.description} onChange={set('description')} error={errors.description} />
+                    <p style={{ fontSize: 11, color: '#616161', marginTop: 6, fontFamily: 'Inter, sans-serif' }}>{form.description.length}/200 caracteres</p>
+                </div>
 
                 <Input label="URL do site (opcional)" placeholder="https://suaempresa.com.br" type="url" value={form.website} onChange={set('website')} />
             </div>

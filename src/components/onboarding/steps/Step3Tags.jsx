@@ -16,21 +16,23 @@ export default function Step3Tags({ data, onNext, onBack, saving }) {
     };
 
     return (
-        <div className="flex flex-col gap-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32, fontFamily: 'Inter, sans-serif' }}>
             <div>
-                <h1 className="text-3xl font-black tracking-tight mb-2">Tags de Conteúdo</h1>
-                <p className="text-text-2">Quais temas e palavras-chave definem o conteúdo da sua marca?</p>
+                <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, color: '#FFFFFF', marginBottom: 8 }}>Tags de Conteúdo</h1>
+                <p style={{ fontSize: 14, color: '#A8A8A8' }}>Quais temas e palavras-chave definem o conteúdo da sua marca?</p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <TagInput tags={tags} onChange={setTags} suggestions={suggestions} min={3} max={12} />
-                {error && <p className="text-xs text-red-400">{error}</p>}
-                <p className="text-xs text-text-3">Essas tags orientam a IA ao gerar posts. Quanto mais específicas, melhor o resultado.</p>
+                {error && <p style={{ fontSize: 12, color: '#F87171', fontFamily: 'Inter, sans-serif' }}>{error}</p>}
+                <p style={{ fontSize: 12, color: '#616161', fontFamily: 'Inter, sans-serif' }}>
+                    Essas tags orientam a IA ao gerar posts. Quanto mais específicas, melhor o resultado.
+                </p>
             </div>
 
-            <div className="flex gap-3">
-                <Button variant="secondary" size="md" onClick={onBack} className="w-28">← Voltar</Button>
-                <Button variant="primary" className="flex-1" onClick={submit} loading={saving}>Próximo →</Button>
+            <div style={{ display: 'flex', gap: 10 }}>
+                <Button variant="secondary" size="md" onClick={onBack} style={{ width: 100 }}>← Voltar</Button>
+                <Button variant="primary" onClick={submit} loading={saving} style={{ flex: 1 }}>Próximo →</Button>
             </div>
         </div>
     );

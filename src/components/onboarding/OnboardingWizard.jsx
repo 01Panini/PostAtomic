@@ -11,6 +11,18 @@ import Step6Preview from './steps/Step6Preview';
 
 const STEPS = ['Identidade', 'Público', 'Conteúdo', 'Visual', 'Módulos', 'Preview'];
 
+function AtomMark({ size = 24 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="#0CC981" strokeWidth="1.5" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" transform="rotate(60 14 14)" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" transform="rotate(120 14 14)" />
+            <circle cx="14" cy="14" r="2" fill="#0CC981" />
+        </svg>
+    );
+}
+
 export default function OnboardingWizard() {
     const [step, setStep] = useState(0);
     const [data, setData] = useState({});
@@ -39,47 +51,61 @@ export default function OnboardingWizard() {
         navigate('/workspace', { replace: true });
     };
 
-    const progress = ((step) / (STEPS.length - 1)) * 100;
-
+    const progress = (step / (STEPS.length - 1)) * 100;
     const stepProps = { data, onNext: next, onBack: () => setStep(s => s - 1), saving };
 
     return (
-        <div className="min-h-screen bg-base text-text-1 font-sans flex flex-col">
-            {/* Progress bar */}
-            <div className="fixed top-0 left-0 right-0 z-50">
-                <div className="h-0.5 bg-[#0D1325]">
-                    <div className="h-full bg-gradient-to-r from-blue to-blue-light transition-all duration-500"
-                        style={{ width: `${progress}%` }} />
+        <div style={{ minHeight: '100vh', background: '#050505', color: '#FFFFFF', fontFamily: 'Inter, sans-serif', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Progress bar + nav */}
+            <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50 }}>
+                {/* Thin progress bar */}
+                <div style={{ height: 2, background: 'rgba(255,255,255,0.06)' }}>
+                    <div style={{ height: '100%', width: `${progress}%`, background: '#0CC981', transition: 'width 0.5s cubic-bezier(0.22,1,0.36,1)', borderRadius: 99 }} />
                 </div>
-                <div className="bg-surface/90 backdrop-blur border-b border-border px-6 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-blue flex items-center justify-center shadow-[0_0_16px_rgba(0,87,183,.5)]">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" strokeWidth={2} />
-                                <polyline points="9 22 9 12 15 12 15 22" stroke="white" strokeWidth={2} />
-                            </svg>
-                        </div>
-                        <span className="text-sm font-bold">Post Machine</span>
+
+                {/* Nav bar */}
+                <div style={{ background: 'rgba(5,5,5,0.9)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {/* Logo */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <AtomMark size={22} />
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#FFFFFF' }}>PostAtomic</span>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    {/* Step indicators */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         {STEPS.map((label, i) => (
-                            <div key={i} className="flex items-center gap-2">
-                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold transition-all
-                                    ${i < step ? 'bg-blue text-white' : i === step ? 'bg-blue/20 border border-blue text-blue-light' : 'bg-white/[.04] text-text-3 border border-[#162035]'}`}>
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <div style={{
+                                    width: 22, height: 22, borderRadius: '50%',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 10, fontWeight: 700,
+                                    background: i < step ? '#0CC981' : i === step ? 'rgba(12,201,129,0.12)' : 'rgba(255,255,255,0.04)',
+                                    color: i < step ? '#050505' : i === step ? '#0CC981' : '#616161',
+                                    border: i === step ? '1px solid rgba(12,201,129,0.4)' : '1px solid transparent',
+                                    transition: 'all 0.3s',
+                                }}>
                                     {i < step ? '✓' : i + 1}
                                 </div>
-                                <span className={`text-xs font-semibold hidden md:block ${i === step ? 'text-text-1' : 'text-text-3'}`}>{label}</span>
-                                {i < STEPS.length - 1 && <div className="w-6 h-px bg-[#162035] hidden md:block" />}
+                                <span style={{
+                                    fontSize: 11, fontWeight: 500,
+                                    color: i === step ? '#FFFFFF' : '#616161',
+                                    display: window.innerWidth < 768 ? 'none' : 'block',
+                                }}>{label}</span>
+                                {i < STEPS.length - 1 && (
+                                    <div style={{ width: 20, height: 1, background: 'rgba(255,255,255,0.08)', display: window.innerWidth < 768 ? 'none' : 'block' }} />
+                                )}
                             </div>
                         ))}
                     </div>
-                    <div className="text-xs text-text-3 font-bold">{step + 1} / {STEPS.length}</div>
+
+                    <div style={{ fontSize: 11, color: '#616161', fontWeight: 600 }}>{step + 1} / {STEPS.length}</div>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="flex-1 flex items-start justify-center pt-28 pb-12 px-4">
-                <div className="w-full max-w-2xl animate-fade-up">
+            <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 100, paddingBottom: 48, paddingLeft: 16, paddingRight: 16 }}>
+                <div style={{ width: '100%', maxWidth: 600, animation: 'fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
                     {step === 0 && <Step1Identity {...stepProps} />}
                     {step === 1 && <Step2Audience {...stepProps} />}
                     {step === 2 && <Step3Tags {...stepProps} />}

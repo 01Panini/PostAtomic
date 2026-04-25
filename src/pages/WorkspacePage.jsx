@@ -3,59 +3,27 @@ import { useAuth } from '../contexts/AuthContext';
 import { useBrand } from '../contexts/BrandContext';
 import { useUsage } from '../hooks/useUsage';
 
-function AtomLogo({ size = 28 }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-            <defs>
-                <linearGradient id="ws-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#1D4ED8" />
-                    <stop offset="100%" stopColor="#2563EB" />
-                </linearGradient>
-            </defs>
-            <rect width="32" height="32" rx="7" fill="url(#ws-bg)" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" transform="rotate(60 16 16)" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" transform="rotate(120 16 16)" />
-            <circle cx="16" cy="16" r="2.4" fill="white" />
-        </svg>
-    );
-}
-
-/* ── Nav icons (no emojis) ── */
-const ICON_MACHINE = (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-);
-const ICON_HISTORY = (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-);
-const ICON_SETTINGS = (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-);
-const ICON_LOGOUT = (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-);
+const IC = {
+    machine: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+    history: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.8" /><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
+    settings: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" /><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>,
+    logout:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+};
 
 function NavItem({ to, icon, label, end }) {
     return (
         <NavLink to={to} end={end}
-            className={({ isActive }) =>
-                `flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                        ? 'bg-[#2563EB]/[.12] text-[#60A5FA] border border-[#2563EB]/20'
-                        : 'text-[#4D6B8A] hover:text-[#8BA8C8] hover:bg-white/[.03]'
-                }`
-            }>
-            <span className="flex-shrink-0">{icon}</span>
+            style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: 9,
+                padding: '8px 10px', borderRadius: 8,
+                fontSize: 13, fontWeight: isActive ? 500 : 400,
+                textDecoration: 'none',
+                color: isActive ? '#FFFFFF' : '#616161',
+                background: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
+                border: isActive ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+                transition: 'all 0.15s',
+            })}>
+            {icon}
             {label}
         </NavLink>
     );
@@ -69,84 +37,81 @@ export default function WorkspacePage() {
 
     const tenantName = brand?.tenantMeta?.name || tenant?.name || 'Workspace';
     const logoUrl = brand?.tenantMeta?.logoUrl;
+    const used = dailyUsed || 0;
+    const limit = dailyLimit || 3;
+    const isAtLimit = used >= limit;
+    const pct = Math.min((used / limit) * 100, 100);
 
-    const handleLogout = () => {
-        logout();
-        navigate('/', { replace: true });
-    };
-
-    const dailyPct = Math.min(((dailyUsed || 0) / (dailyLimit || 3)) * 100, 100);
-    const isAtLimit = (dailyUsed || 0) >= (dailyLimit || 3);
+    const handleLogout = () => { logout(); navigate('/', { replace: true }); };
 
     return (
-        <div className="flex h-screen overflow-hidden bg-void">
+        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#050505', fontFamily: 'Inter, sans-serif' }}>
+
             {/* ── SIDEBAR ── */}
-            <aside className="w-56 flex-shrink-0 bg-[#060E20] border-r border-white/[.05] flex flex-col overflow-y-auto">
-                {/* Brand header */}
-                <div className="p-4 border-b border-white/[.05]">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+            <aside style={{ width: 220, flexShrink: 0, background: '#0F0F0F', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+                {/* Brand */}
+                <div style={{ padding: '16px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 30, height: 30, borderRadius: 8, background: '#191919', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                             {logoUrl
-                                ? <img src={logoUrl} className="w-full h-full object-cover rounded-lg" alt="logo" />
-                                : <AtomLogo size={32} />
+                                ? <img src={logoUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
+                                : <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#0CC981" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                             }
                         </div>
-                        <div className="min-w-0">
-                            <p className="text-xs font-bold truncate text-[#F0F6FF]">{tenantName}</p>
-                            <p className="text-[10px] text-[#4D6B8A] font-semibold uppercase tracking-wider">PostAtomic</p>
+                        <div style={{ minWidth: 0 }}>
+                            <p style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tenantName}</p>
+                            <p style={{ fontSize: 10, color: '#616161', fontWeight: 400, letterSpacing: 0.3 }}>PostAtomic</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Nav */}
-                <nav className="flex flex-col gap-1 px-3 py-4">
-                    <p className="text-[9px] font-bold tracking-[.14em] uppercase text-[#2D4D7E] px-3 mb-2">Conteúdo</p>
-                    <NavItem to="/workspace" end icon={ICON_MACHINE} label="Post Machine" />
-                    <NavItem to="/workspace/dashboard" icon={ICON_HISTORY} label="Histórico" />
+                <nav style={{ padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#616161', padding: '0 8px', marginBottom: 4 }}>Conteúdo</p>
+                    <NavItem to="/workspace" end icon={IC.machine} label="Post Machine" />
+                    <NavItem to="/workspace/dashboard" icon={IC.history} label="Histórico" />
 
-                    <p className="text-[9px] font-bold tracking-[.14em] uppercase text-[#2D4D7E] px-3 mt-5 mb-2">Configuração</p>
+                    <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#616161', padding: '0 8px', marginTop: 16, marginBottom: 4 }}>Configuração</p>
                     {user?.role === 'owner' && (
-                        <NavItem to="/workspace/settings" icon={ICON_SETTINGS} label="Configurações" />
+                        <NavItem to="/workspace/settings" icon={IC.settings} label="Configurações" />
                     )}
                 </nav>
 
-                {/* Spacer */}
-                <div className="flex-1" />
+                <div style={{ flex: 1 }} />
 
-                {/* Daily usage + user */}
-                <div className="p-4 border-t border-white/[.05] flex flex-col gap-4">
-                    {/* Daily limit */}
+                {/* Daily usage */}
+                <div style={{ padding: '12px 14px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 12 }}>
                     <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#4D6B8A]">Hoje</p>
-                            <p className={`text-[10px] font-bold ${isAtLimit ? 'text-[#EF4444]' : 'text-[#4D6B8A]'}`}>
-                                {dailyUsed || 0}/{dailyLimit || 3}
-                            </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{ fontSize: 11, color: '#616161', fontWeight: 500, letterSpacing: 0.3 }}>Hoje</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: isAtLimit ? '#F87171' : '#A8A8A8' }}>{used}/{limit}</span>
                         </div>
-                        <div className="h-1 bg-[#0A1628] rounded-full overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-500"
-                                style={{ width: `${dailyPct}%`, background: isAtLimit ? '#EF4444' : '#2563EB' }} />
+                        <div style={{ height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 99, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${pct}%`, background: isAtLimit ? '#EF4444' : '#0CC981', borderRadius: 99, transition: 'width 0.5s' }} />
                         </div>
-                        <p className="text-[10px] text-[#4D6B8A] mt-1 capitalize">{plan || 'trial'} · renova às 00:00</p>
+                        <p style={{ fontSize: 10, color: '#616161', marginTop: 4 }}>{plan || 'trial'} · renova às 00:00</p>
                     </div>
 
                     {/* User row */}
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                            <p className="text-xs font-semibold truncate text-[#8BA8C8]">{user?.name}</p>
-                            <p className="text-[10px] text-[#4D6B8A] truncate">{user?.email}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: '#A8A8A8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</p>
+                            <p style={{ fontSize: 10, color: '#616161', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
                         </div>
                         <button onClick={handleLogout}
-                            className="text-[#4D6B8A] hover:text-[#EF4444] transition-colors flex-shrink-0"
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#616161', flexShrink: 0, padding: 4, borderRadius: 6, transition: 'color 0.15s' }}
+                            onMouseEnter={e => e.currentTarget.style.color = '#F87171'}
+                            onMouseLeave={e => e.currentTarget.style.color = '#616161'}
                             title="Sair">
-                            {ICON_LOGOUT}
+                            {IC.logout}
                         </button>
                     </div>
                 </div>
             </aside>
 
-            {/* ── MAIN CONTENT ── */}
-            <main className="flex-1 overflow-hidden bg-[#03091A]">
+            {/* ── MAIN ── */}
+            <main style={{ flex: 1, overflow: 'hidden', background: '#050505' }}>
                 <Outlet />
             </main>
         </div>

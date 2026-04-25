@@ -1,29 +1,98 @@
-export function Button({ children, variant = 'primary', size = 'md', className = '', loading, ...props }) {
-    const base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed';
+const SPIN = (
+    <span style={{
+        width: 14, height: 14,
+        border: '2px solid rgba(0,0,0,0.2)',
+        borderTopColor: '#050505',
+        borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+        display: 'inline-block',
+        flexShrink: 0,
+    }} />
+);
 
-    const variants = {
-        primary:   'bg-[#2563EB] text-white shadow-[0_4px_24px_rgba(37,99,235,0.45)] hover:shadow-[0_8px_36px_rgba(37,99,235,0.55)] hover:-translate-y-0.5 active:scale-[.98]',
-        secondary: 'bg-white/[.04] border border-[#1E3560] text-[#8BA8C8] hover:bg-[#2563EB]/[.1] hover:border-[#2563EB]/40 hover:text-[#60A5FA] active:scale-[.97]',
-        ghost:     'text-[#8BA8C8] hover:text-[#F0F6FF] hover:bg-white/[.04]',
-        danger:    'bg-[#EF4444]/10 border border-[#EF4444]/25 text-[#F87171] hover:bg-[#EF4444]/20',
-    };
+const SPIN_LIGHT = (
+    <span style={{
+        width: 14, height: 14,
+        border: '2px solid rgba(255,255,255,0.15)',
+        borderTopColor: 'rgba(255,255,255,0.7)',
+        borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+        display: 'inline-block',
+        flexShrink: 0,
+    }} />
+);
 
-    const sizes = {
-        sm: 'px-3 py-1.5 text-xs',
-        md: 'px-5 py-3 text-sm',
-        lg: 'px-7 py-4 text-base',
-        xl: 'w-full px-6 py-4 text-base',
-    };
+const BASE = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    fontFamily: 'Inter, sans-serif',
+    fontWeight: 700,
+    cursor: 'pointer',
+    border: 'none',
+    transition: 'opacity 0.15s, background 0.15s',
+    outline: 'none',
+};
+
+const VARIANTS = {
+    primary: {
+        background: '#FFFFFF',
+        color: '#050505',
+        borderRadius: 9999,
+    },
+    secondary: {
+        background: 'rgba(255,255,255,0.05)',
+        color: '#A8A8A8',
+        borderRadius: 9999,
+        border: '1px solid rgba(255,255,255,0.1)',
+    },
+    ghost: {
+        background: 'transparent',
+        color: '#616161',
+        borderRadius: 8,
+    },
+    danger: {
+        background: 'rgba(239,68,68,0.08)',
+        color: '#F87171',
+        borderRadius: 9999,
+        border: '1px solid rgba(239,68,68,0.2)',
+    },
+};
+
+const SIZES = {
+    sm: { padding: '6px 14px', fontSize: 12 },
+    md: { padding: '9px 20px', fontSize: 13 },
+    lg: { padding: '12px 28px', fontSize: 14 },
+    xl: { padding: '12px 0', fontSize: 14, width: '100%' },
+};
+
+export function Button({
+    children,
+    variant = 'primary',
+    size = 'md',
+    loading,
+    style: extraStyle = {},
+    className = '',
+    ...props
+}) {
+    const isLight = variant === 'primary';
 
     return (
         <button
-            className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+            style={{
+                ...BASE,
+                ...VARIANTS[variant],
+                ...SIZES[size],
+                opacity: (loading || props.disabled) ? 0.55 : 1,
+                cursor: (loading || props.disabled) ? 'not-allowed' : 'pointer',
+                ...extraStyle,
+            }}
             disabled={loading || props.disabled}
+            className={className}
             {...props}
         >
-            {loading && (
-                <span className="w-4 h-4 border-2 border-white/25 border-t-white rounded-full animate-spin flex-shrink-0" />
-            )}
+            {loading && (isLight ? SPIN : SPIN_LIGHT)}
             {children}
         </button>
     );

@@ -1,25 +1,40 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 
-function AtomLogo({ size = 32 }) {
+function AtomMark({ size = 28 }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-            <defs>
-                <linearGradient id="auth-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%" stopColor="#1D4ED8" />
-                    <stop offset="100%" stopColor="#2563EB" />
-                </linearGradient>
-            </defs>
-            <rect width="32" height="32" rx="8" fill="url(#auth-bg)" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" transform="rotate(60 16 16)" />
-            <ellipse cx="16" cy="16" rx="11" ry="4.2" stroke="rgba(255,255,255,0.9)" strokeWidth="1.2" fill="none" transform="rotate(120 16 16)" />
-            <circle cx="16" cy="16" r="2.4" fill="white" />
-            <circle cx="16" cy="16" r="4" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="#0CC981" strokeWidth="1.5" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" transform="rotate(60 14 14)" />
+            <ellipse cx="14" cy="14" rx="9" ry="3.5" stroke="white" strokeWidth="1.2" fill="none" transform="rotate(120 14 14)" />
+            <circle cx="14" cy="14" r="2" fill="#0CC981" />
         </svg>
+    );
+}
+
+function Field({ label, error, ...props }) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: '#A8A8A8', letterSpacing: 0.2 }}>{label}</label>
+            <input
+                style={{
+                    background: '#121212',
+                    border: `1px solid ${error ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: 8,
+                    color: '#FFFFFF',
+                    fontSize: 14,
+                    padding: '10px 14px',
+                    outline: 'none',
+                    fontFamily: 'Inter, sans-serif',
+                    transition: 'border-color 0.15s',
+                    width: '100%',
+                }}
+                {...props}
+            />
+            {error && <p style={{ fontSize: 12, color: '#F87171' }}>{error}</p>}
+        </div>
     );
 }
 
@@ -36,7 +51,7 @@ export default function AuthPage() {
         if (user) navigate('/workspace', { replace: true });
     }, [user, navigate]);
 
-    const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+    const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
     const submit = async (e) => {
         e.preventDefault();
@@ -63,75 +78,86 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen bg-void flex items-center justify-center p-4 star-field">
-            {/* Subtle nebula */}
-            <div className="absolute inset-0 pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 40%, rgba(37,99,235,0.12) 0%, transparent 60%)' }} />
+        <div style={{ minHeight: '100vh', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'Inter, sans-serif' }}>
+            {/* Subtle aurora */}
+            <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse at 50% 40%, rgba(12,201,129,0.06) 0%, transparent 60%)', pointerEvents: 'none' }} />
 
-            <div className="relative z-10 w-full max-w-md animate-fade-up">
-                {/* Back button */}
+            <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 400, animation: 'fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
+                {/* Back */}
                 <button onClick={() => navigate('/')}
-                    className="flex items-center gap-2 text-sm text-[#4D6B8A] hover:text-[#8BA8C8] transition-colors mb-8 group">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="group-hover:-translate-x-0.5 transition-transform">
-                        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#616161', background: 'none', border: 'none', cursor: 'pointer', marginBottom: 40, padding: 0, transition: 'color 0.15s', fontFamily: 'Inter, sans-serif' }}
+                    onMouseEnter={e => e.currentTarget.style.color = '#A8A8A8'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#616161'}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                     Voltar ao início
                 </button>
 
                 {/* Logo */}
-                <div className="flex items-center justify-center gap-3 mb-10">
-                    <AtomLogo size={36} />
-                    <span className="text-lg font-bold tracking-tight text-[#F0F6FF]">PostAtomic</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 36 }}>
+                    <AtomMark size={30} />
+                    <span style={{ fontSize: 16, fontWeight: 700 }}>PostAtomic</span>
                 </div>
 
                 {/* Card */}
-                <div className="glass-card rounded-2xl p-8 shadow-card">
+                <div style={{ background: '#121212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 32 }}>
                     {/* Tabs */}
-                    <div className="flex gap-1 bg-[#060E20] rounded-xl p-1 mb-8 border border-white/[.04]">
-                        {[{ v: 'login', l: 'Entrar' }, { v: 'signup', l: 'Criar conta' }].map((t) => (
+                    <div style={{ display: 'flex', gap: 4, background: '#0F0F0F', borderRadius: 10, padding: 4, marginBottom: 28, border: '1px solid rgba(255,255,255,0.05)' }}>
+                        {[{ v: 'login', l: 'Entrar' }, { v: 'signup', l: 'Criar conta' }].map(t => (
                             <button key={t.v} onClick={() => { setTab(t.v); setError(''); }}
-                                className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                                    tab === t.v
-                                        ? 'bg-[#0A1628] text-[#F0F6FF] shadow-sm'
-                                        : 'text-[#4D6B8A] hover:text-[#8BA8C8]'
-                                }`}>
+                                style={{
+                                    flex: 1, padding: '9px 0', borderRadius: 7, border: 'none', cursor: 'pointer',
+                                    background: tab === t.v ? '#191919' : 'transparent',
+                                    color: tab === t.v ? '#FFFFFF' : '#616161',
+                                    fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif',
+                                    transition: 'all 0.15s',
+                                    boxShadow: tab === t.v ? '0 1px 4px rgba(0,0,0,0.3)' : 'none',
+                                }}>
                                 {t.l}
                             </button>
                         ))}
                     </div>
 
-                    <form onSubmit={submit} className="flex flex-col gap-4">
+                    <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                         {tab === 'signup' && (
                             <>
-                                <Input label="Seu nome" placeholder="João Silva" value={form.name} onChange={set('name')} required />
-                                <Input label="Nome da empresa" placeholder="Prefeitura de Exemplo" value={form.companyName} onChange={set('companyName')} required />
+                                <Field label="Seu nome" placeholder="João Silva" value={form.name} onChange={set('name')} required />
+                                <Field label="Nome da empresa" placeholder="Empresa Exemplo" value={form.companyName} onChange={set('companyName')} required />
                             </>
                         )}
-
-                        <Input label="E-mail" type="email" placeholder="voce@empresa.com" value={form.email} onChange={set('email')} required />
-                        <Input label="Senha" type="password" placeholder={tab === 'signup' ? 'Mínimo 6 caracteres' : '••••••••'} value={form.password} onChange={set('password')} required />
+                        <Field label="E-mail" type="email" placeholder="voce@empresa.com" value={form.email} onChange={set('email')} required />
+                        <Field label="Senha" type="password" placeholder={tab === 'signup' ? 'Mínimo 6 caracteres' : '••••••••'} value={form.password} onChange={set('password')} required />
 
                         {error && (
-                            <div className="bg-[#EF4444]/10 border border-[#EF4444]/20 rounded-xl px-4 py-3 text-sm text-[#F87171]">
+                            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#F87171' }}>
                                 {error}
                             </div>
                         )}
 
-                        <Button variant="primary" size="lg" type="submit" loading={loading} className="mt-2">
+                        <button type="submit" disabled={loading}
+                            style={{
+                                marginTop: 4, padding: '12px 0', background: '#FFFFFF', color: '#050505',
+                                border: 'none', borderRadius: 9999, fontSize: 14, fontWeight: 700,
+                                cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                                fontFamily: 'Inter, sans-serif', transition: 'all 0.15s',
+                            }}>
+                            {loading && <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#050505', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />}
                             {tab === 'login' ? 'Entrar' : 'Criar conta e configurar marca'}
-                        </Button>
+                        </button>
                     </form>
 
-                    <p className="text-xs text-[#4D6B8A] text-center mt-6">
+                    <p style={{ fontSize: 13, color: '#616161', textAlign: 'center', marginTop: 20 }}>
                         {tab === 'login' ? (
                             <>Não tem conta?{' '}
-                                <button onClick={() => { setTab('signup'); setError(''); }} className="text-[#60A5FA] hover:underline">
+                                <button onClick={() => { setTab('signup'); setError(''); }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0CC981', fontSize: 13, fontFamily: 'Inter, sans-serif', padding: 0 }}>
                                     Crie grátis
                                 </button>
                             </>
                         ) : (
                             <>Já tem conta?{' '}
-                                <button onClick={() => { setTab('login'); setError(''); }} className="text-[#60A5FA] hover:underline">
+                                <button onClick={() => { setTab('login'); setError(''); }}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0CC981', fontSize: 13, fontFamily: 'Inter, sans-serif', padding: 0 }}>
                                     Entre aqui
                                 </button>
                             </>
@@ -139,7 +165,7 @@ export default function AuthPage() {
                     </p>
                 </div>
 
-                <p className="text-xs text-[#4D6B8A] text-center mt-6">
+                <p style={{ fontSize: 12, color: '#616161', textAlign: 'center', marginTop: 20 }}>
                     10 gerações grátis · sem cartão de crédito
                 </p>
             </div>

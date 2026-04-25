@@ -1,13 +1,21 @@
-export function Card({ children, className = '', onClick, selected }) {
+export function Card({ children, className = '', onClick, selected, style: extraStyle = {} }) {
     return (
         <div
             onClick={onClick}
-            className={`rounded-2xl border transition-all duration-200 p-5
-                ${onClick ? 'cursor-pointer' : ''}
-                ${selected
-                    ? 'bg-blue/[.12] border-blue/50 shadow-[0_0_0_1px_rgba(0,87,183,.3)]'
-                    : 'bg-white/[.02] border-[#0D1325] hover:border-[#162035]'}
-                ${className}`}
+            style={{
+                borderRadius: 12,
+                border: selected
+                    ? '1px solid rgba(12,201,129,0.35)'
+                    : '1px solid rgba(255,255,255,0.06)',
+                background: selected
+                    ? 'rgba(12,201,129,0.06)'
+                    : 'rgba(255,255,255,0.02)',
+                padding: 16,
+                transition: 'all 0.15s',
+                cursor: onClick ? 'pointer' : 'default',
+                ...extraStyle,
+            }}
+            className={className}
         >
             {children}
         </div>
