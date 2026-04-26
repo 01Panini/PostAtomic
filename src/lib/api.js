@@ -5,16 +5,33 @@ function token() {
 }
 
 async function req(path, options = {}) {
-    const res = await fetch(`${BASE}${path}`, {
-        ...options,
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
-            ...options.headers,
-        },
-        body: options.body ? JSON.stringify(options.body) : undefined,
-    });
-    const data = await res.json();
+    let res;
+    try {
+        res = await fetch(`${BASE}${path}`, {
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
+                ...options.headers,
+            },
+            body: options.body ? JSON.stringify(options.body) : undefined,
+        });
+    } catch {
+        throw new Error('Servidor offline. Execute `npm run dev` para iniciar o backend.');
+    }
+
+    const text = await res.text();
+    let data = {};
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch {
+            // Server returned non-JSON (HTML error page, proxy error, etc.)
+            if (!res.ok) throw new Error(`Erro ${res.status} — resposta inválida do servidor.`);
+            throw new Error('Resposta inesperada do servidor.');
+        }
+    }
+
     if (!res.ok) throw new Error(data.error || `Erro ${res.status}`);
     return data;
 }

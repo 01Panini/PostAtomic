@@ -430,7 +430,24 @@ function getFallbackPalettes(segment) {
 /* ─── START ───────────────────────────────────────────────────────────── */
 if (!process.env.VERCEL) {
     const port = process.env.PORT || 3001;
-    app.listen(port, () => console.log(`API running on http://localhost:${port}`));
+
+    // Validate required env vars before accepting requests
+    if (!process.env.DATABASE_URL) {
+        console.error('❌  DATABASE_URL não definida. Crie um arquivo .env com DATABASE_URL=...');
+        process.exit(1);
+    }
+    if (!process.env.ANTHROPIC_API_KEY) {
+        console.warn('⚠️   ANTHROPIC_API_KEY não definida — geração de conteúdo não funcionará.');
+    }
+
+    // Quick DB connectivity check
+    db`SELECT 1`.then(() => {
+        console.log('✅  Database conectado');
+    }).catch(err => {
+        console.error('❌  Falha ao conectar ao banco de dados:', err.message);
+    });
+
+    app.listen(port, () => console.log(`🚀  API rodando em http://localhost:${port}`));
 }
 
 export default app;
